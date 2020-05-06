@@ -9,9 +9,13 @@ project(HelloWorld)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS} src)
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+link_directories(${OpenCV_LIBRARY_DIRS})
+add_definitions(${OpenCV_DEFINITIONS})
+
+# Find all executables
+file(GLOB project_SRCS src/*.cpp) #src/*.h
 
 add_executable(HelloWorld src/main.cpp)
-string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
-target_link_libraries(HelloWorld ${SDL2_LIBRARIES})
+target_link_libraries(HelloWorld ${OpenCV_LIBS})

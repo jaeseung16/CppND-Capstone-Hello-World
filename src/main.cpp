@@ -1,7 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <complex>
-#include <SDL.h>
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/mat.hpp>
 
 float width = 600;
 float height = 600;
@@ -27,12 +28,15 @@ int main() {
 
     std::ofstream my_Image("mandelbrot.ppm");
 
+    cv::Mat imageMat(width, height, CV_8UC3, cv::Vec3b(0,0,0));
+
     if (my_Image.is_open()) {
         my_Image << "P3\n" << width << " " << height << " 255\n";
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 int val = value(x, y);
                 my_Image << val << ' ' << 0 << ' ' << 0 << "\n";
+                imageMat.at<cv::Vec3b>(x, y) = cv::Vec3b(val,val,val);
             }
         }
         my_Image.close();
@@ -40,35 +44,9 @@ int main() {
         std::cout << "Could not open the file\n";
     }
 
-    bool quit = false;
-    SDL_Event event;
+    cv::imshow("My image", imageMat);
 
-    SDL_Init(SDL_INIT_VIDEO);
-
-    SDL_Window *window = SDL_CreateWindow("SDL2 Displaying Image", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
-
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
-    SDL_Surface *image = SDL_LoadBMP("mandelbrot.bmp");
-    SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, image);
-
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
-    SDL_RenderPresent(renderer);
-
-    while(!quit) {
-        SDL_WaitEvent(&event);
-
-        switch (event.type) {
-            case SDL_QUIT:
-                quit = true;
-                break;
-        }
-    }
-
-    SDL_DestroyTexture(texture);
-    SDL_FreeSurface(image);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    cv::waitKey(0);
 
     return 0;
 }
