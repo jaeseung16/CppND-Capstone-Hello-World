@@ -14,8 +14,5 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 link_directories(${OpenCV_LIBRARY_DIRS})
 add_definitions(${OpenCV_DEFINITIONS})
 
-# Find all executables
-file(GLOB project_SRCS src/*.cpp) #src/*.h
-
-add_executable(HelloWorld src/main.cpp)
+add_executable(HelloWorld src/main.cpp src/MandelbrotPoint.cpp)
 target_link_libraries(HelloWorld ${OpenCV_LIBS})

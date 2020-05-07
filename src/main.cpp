@@ -4,22 +4,20 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/mat.hpp>
 
-float width = 600;
-float height = 600;
+#include "MandelbrotPoint.h"
+
+float width = 800;
+float height = 800;
 
 int value(int x, int y) {
     std::complex<float> point(3.0*(float)x/width-2.0, 3.0*(float)y/height-1.5);
-    std::complex<float> z(0,0);
-    int nb_iter = 0;
-    //std::cout << point << "\n";
-    while (abs(z) <= 2 && nb_iter < 50) {
-        z = z * z + point;
-        nb_iter ++;
-    }
-    if (nb_iter < 50) {
-        return (255 * nb_iter) / 50;
-    } else {
+
+    MandelbrotPoint mPoint = MandelbrotPoint(point, (unsigned int) 50);
+
+    if (mPoint.isMandelBrotSet()) {
         return 0;
+    } else {
+        return 255 * (int)mPoint.getIteration() / 50;
     }
 }
 
@@ -36,7 +34,7 @@ int main() {
             for (int y = 0; y < height; y++) {
                 int val = value(x, y);
                 my_Image << val << ' ' << 0 << ' ' << 0 << "\n";
-                imageMat.at<cv::Vec3b>(x, y) = cv::Vec3b(val,val,val);
+                imageMat.at<cv::Vec3b>(x, y) = cv::Vec3b(0,val,0);
             }
         }
         my_Image.close();
