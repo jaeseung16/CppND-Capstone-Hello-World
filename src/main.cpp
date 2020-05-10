@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <complex>
+#include <chrono> 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/mat.hpp>
 
@@ -30,6 +31,8 @@ int main() {
 
     if (my_Image.is_open()) {
         my_Image << "P3\n" << width << " " << height << " 255\n";
+
+        auto start = std::chrono::high_resolution_clock::now();
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 int val = value(x, y);
@@ -37,6 +40,8 @@ int main() {
                 imageMat.at<cv::Vec3b>(x, y) = cv::Vec3b(0,val,0);
             }
         }
+        auto end = std::chrono::high_resolution_clock::now();
+        std::cout << "It took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
         my_Image.close();
     } else {
         std::cout << "Could not open the file\n";
