@@ -3,6 +3,7 @@
 #include <complex>
 #include <chrono> 
 #include <thread>
+#include <random>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/mat.hpp>
 
@@ -11,8 +12,8 @@
 float width = 800;
 float height = 800;
 
-int value(int x, int y) {
-    std::complex<float> point(3.0*(float)x/width-2.0, 3.0*(float)y/height-1.5);
+int value(int x, int y, float x_min, float y_min) {
+    std::complex<float> point(3.0*(float)x/width+x_min, 3.0*(float)y/height+y_min);
 
     MandelbrotPoint mPoint = MandelbrotPoint(point, (unsigned int) 50);
 
@@ -25,12 +26,19 @@ int value(int x, int y) {
 
 void showMandelbrotSet() {
     while(true) {
-        cv::Mat imageMat(width, height, CV_8UC3, cv::Vec3b(0,0,0));
+        std::random_device rd; 
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<float> uniform_dist(-1.0, 1.0);
 
-            auto start = std::chrono::high_resolution_clock::now();
+        float x_min = -2.0 + uniform_dist(gen);
+        float y_min = -1.5 + uniform_dist(gen);
+
+        cv::Mat imageMat(width, height, CV_8UC3, cv::Vec3b(0,0,0));
+        auto start = std::chrono::high_resolution_clock::now();
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
-                int val = value(x, y);
+                    
+                int val = value(x, y, x_min, y_min);
                 imageMat.at<cv::Vec3b>(x, y) = cv::Vec3b(0,val,0);
             }
         }
