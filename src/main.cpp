@@ -22,11 +22,9 @@ int value(int x, int y) {
     }
 }
 
-int main() {
-    std::cout << "Hello World!" << "\n";
-
+void showMandelbrotSet() {
     cv::Mat imageMat(width, height, CV_8UC3, cv::Vec3b(0,0,0));
-    
+
     auto start = std::chrono::high_resolution_clock::now();
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
@@ -39,6 +37,10 @@ int main() {
     
     cv::imshow("My image", imageMat);
     cv::waitKey(0);
+}
 
+int main() {
+    std::cout << "Hello World!" << "\n";
+    showMandelbrotSet();
     return 0;
 }
