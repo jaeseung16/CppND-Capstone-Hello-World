@@ -6,11 +6,19 @@
 #include <random>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/mat.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 #include "MandelbrotPoint.h"
 
+std::string windowName = "Mandelbrot";
 float width = 800;
 float height = 800;
+bool selectObject = false;
+bool trackObject = false;
+int size = 100;
+cv::Point origin;
+cv::Rect selection(0, 0, 100, 100);
+cv::Mat imageMat(width, height, CV_8UC3, cv::Vec3b(0,0,0));
 
 int value(int x, int y, float x_min, float y_min) {
     std::complex<float> point(3.0*(float)x/width+x_min, 3.0*(float)y/height+y_min);
@@ -24,22 +32,150 @@ int value(int x, int y, float x_min, float y_min) {
     }
 }
 
+int zoomedValue(float x, float y) {
+    std::complex<float> point(x, y);
+
+    MandelbrotPoint mPoint = MandelbrotPoint(point, (unsigned int) 50);
+
+    if (mPoint.isMandelBrotSet()) {
+        return 0;
+    } else {
+        return 255 * (int)mPoint.getIteration() / 50;
+    }
+}
+
+void onMouse(int event, int x, int y, int flags, void* )
+{
+    switch(event) {
+        case cv::EVENT_MOUSEMOVE:
+            {
+                bool isLeftButtonDown = (flags & cv::EVENT_FLAG_LBUTTON) != 0;
+                bool isRightButtonDown = (flags & cv::EVENT_FLAG_RBUTTON) != 0;
+                if (trackObject == true && isLeftButtonDown) {
+                    selection.x += x - origin.x;
+                    selection.y += y - origin.y;
+                    origin = cv::Point(x,y);
+
+                    cv::Mat image = imageMat.clone();
+                    cv::rectangle(image, selection, cv::Vec3b(255,255,0));
+                    cv::imshow(windowName, image);
+                }
+
+                if (trackObject == false && isRightButtonDown) {
+                    int dx = x - origin.x;
+                    int dy = y - origin.y;
+                    int delta = (dx + dy) / 2;
+
+                    std::cout << "delta = " << delta << std::endl;
+
+                    if ( delta > 0) {
+                        if (selection.x > selection.y) {
+                            if (selection.x + selection.width + delta < width) {
+                                selection.width += delta;
+                            } else {
+                                selection.width = width - selection.x;
+                            }
+                            selection.height = selection.width;
+                        } else {
+                            if (selection.y + selection.height + delta < height) {
+                                selection.height += delta;
+                            } else {
+                                selection.height = height - selection.y;
+                            }
+                            selection.width = selection.height;
+                        }
+                    } else if (delta < 0) {
+                        if (selection.width + delta >= 10) {
+                            selection.width += delta;
+                        }
+                        selection.height = selection.width;
+                    }
+
+                    origin = cv::Point(x, y);
+                    cv::Mat image = imageMat.clone();
+                    cv::rectangle(image, selection, cv::Vec3b(0,255,255));
+                    cv::imshow(windowName, image);
+                }
+            }
+            break;
+        case cv::EVENT_LBUTTONDOWN:
+            {
+                if ( x > selection.x && x < (selection.x + selection.width) && y > selection.y && y < (selection.y + selection.height)) {
+                    if (trackObject == false) {
+                        origin = cv::Point(x,y);
+                        trackObject = true;
+
+                        cv::Mat image = imageMat.clone();
+                        cv::rectangle(image, selection, cv::Vec3b(255,255,0));
+                        cv::imshow(windowName, image);
+                    }
+                } 
+            }
+            break;
+        case cv::EVENT_LBUTTONUP:
+            if (trackObject == true) {
+                selection.x += x - origin.x;
+                selection.y += y - origin.y;
+                trackObject = false;
+                    
+                cv::Mat image = imageMat.clone();
+                cv::rectangle(image, selection, cv::Vec3b(255,255,255));
+                cv::imshow(windowName, image);
+            }
+            break;
+        
+        case cv::EVENT_RBUTTONDOWN:
+            if (trackObject == false) {
+                origin = cv::Point(x, y);
+
+                cv::Mat image = imageMat.clone();
+                cv::rectangle(image, selection, cv::Vec3b(0,255,255));
+                cv::imshow(windowName, image);
+            }
+            break;
+
+        case cv::EVENT_RBUTTONUP:
+            if (trackObject == false) {    
+                cv::Mat image = imageMat.clone();
+                cv::rectangle(image, selection, cv::Vec3b(255,255,255));
+                cv::imshow(windowName, image);
+            }
+            break;
+    }
+
+    cv::Mat zoomedImageMat(width, height, CV_8UC3, cv::Vec3b(0,0,0));
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int x2 = 0; x2 < width; x2++) {
+        for (int y2 = 0; y2 < height; y2++) {
+            float real_x = 3.0 * ((float)x2 * selection.width / width + selection.x) / width - 2.0;
+            float real_y = 3.0 * ((float)y2 * selection.height / height + selection.y) / height - 1.5;
+
+            int val = zoomedValue(real_x, real_y);
+            zoomedImageMat.at<cv::Vec3b>(y2, x2) = cv::Vec3b(val,val,val);
+        }
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::cout << "Selection = " << selection << std::endl;
+    std::cout << "Zoomed Image: It took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
+
+    cv::imshow("zoomed Mandelbrot", zoomedImageMat);
+}
+
 void showMandelbrotSet() {
-    while(true) {
+    //while(true) {
         std::random_device rd; 
         std::mt19937 gen(rd());
         std::uniform_real_distribution<float> uniform_dist(-1.0, 1.0);
 
-        float x_min = -2.0 + uniform_dist(gen);
-        float y_min = -1.5 + uniform_dist(gen);
+        float x_min = -2.0;
+        float y_min = -1.5;
 
-        cv::Mat imageMat(width, height, CV_8UC3, cv::Vec3b(0,0,0));
         auto start = std::chrono::high_resolution_clock::now();
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
-                    
-                int val = value(x, y, x_min, y_min);
-                imageMat.at<cv::Vec3b>(x, y) = cv::Vec3b(0,val,0);
+                    int val = value(x, y, x_min, y_min);
+                    imageMat.at<cv::Vec3b>(y, x) = cv::Vec3b(0,val,0);
             }
         }
         auto end = std::chrono::high_resolution_clock::now();
@@ -48,12 +184,27 @@ void showMandelbrotSet() {
         auto durationToSleep = std::chrono::microseconds(2000) - std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
         std::this_thread::sleep_for(durationToSleep);
+        cv::namedWindow(windowName);
 
-        cv::imshow("My image", imageMat);
-        if((char)27 == cv::waitKey(30)) {
-            break;
-        }  
-    }
+        cv::setMouseCallback(windowName, onMouse, 0);
+        
+        selection.x = 125;
+        selection.y = 350;
+        selection.width = size;
+        selection.height = size;
+        
+        cv::Mat image = imageMat.clone();
+        cv::rectangle(image, selection, cv::Vec3b(255,255,255));
+        cv::imshow(windowName, image);
+
+        //cv::Rect roi = cv::selectROI(imageMat);
+        //std::cout << "roi = " << roi << std::endl;
+
+        cv::waitKey(0);
+        //if((char)27 == cv::waitKey(30)) {
+        //    break;
+        //}  
+    //}
     
 }
 
