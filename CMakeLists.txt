@@ -12,5 +12,5 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 link_directories(${OpenCV_LIBRARY_DIRS})
 add_definitions(${OpenCV_DEFINITIONS})
 
-add_executable(MandelbrotExplorer src/main.cpp src/MandelbrotPoint.cpp src/MandelbrotDisplay.cpp)
+add_executable(MandelbrotExplorer src/main.cpp src/MandelbrotPoint.cpp src/MandelbrotSet.cpp src/MandelbrotDisplay.cpp)
 target_link_libraries(MandelbrotExplorer ${OpenCV_LIBS})
