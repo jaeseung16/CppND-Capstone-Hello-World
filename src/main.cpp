@@ -1,18 +1,22 @@
 #include <iostream>
 #include <fstream>
 #include <complex>
-#include <chrono> 
+#include <chrono>
+#include <vector>
+#include <algorithm>
 #include <thread>
 #include <random>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include "MandelbrotPoint.h"
+#include "MandelbrotDisplay.h"
+#include "MandelbrotSet.h"
 
 std::string windowName = "Mandelbrot";
 float width = 800;
 float height = 800;
+int originalSize = 800;
 bool selectObject = false;
 bool trackObject = false;
 int size = 100;
@@ -159,31 +163,63 @@ void onMouse(int event, int x, int y, int flags, void* )
     std::cout << "Selection = " << selection << std::endl;
     std::cout << "Zoomed Image: It took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
 
-    cv::imshow("zoomed Mandelbrot", zoomedImageMat);
+    MandelbrotDisplay zoomedDisplay = MandelbrotDisplay(zoomedImageMat, width, 3.0 * selection.width / width, 3.0 * selection.x / width - 2.0, 3.0 * selection.y / height - 1.5);
+
+    cv::imshow("zoomed Mandelbrot", zoomedDisplay.getMandelbrotSet());
 }
 
 void showMandelbrotSet() {
     //while(true) {
-        std::random_device rd; 
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<float> uniform_dist(-1.0, 1.0);
+        //std::random_device rd; 
+        //std::mt19937 gen(rd());
+        //std::uniform_real_distribution<float> uniform_dist(-1.0, 1.0);
 
         float x_min = -2.0;
         float y_min = -1.5;
 
         auto start = std::chrono::high_resolution_clock::now();
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    int val = value(x, y, x_min, y_min);
-                    imageMat.at<cv::Vec3b>(y, x) = cv::Vec3b(0,val,0);
+
+        std::vector<int> xs(originalSize);
+        std::iota(xs.begin(), xs.end(), 0);
+        std::cout << "xs.size = " << xs.size() << std::endl;
+
+        std::vector<int> ys(originalSize);
+        std::iota(ys.begin(), ys.end(), 0);
+        std::cout << "xs.size = " << xs.size() << std::endl;
+
+        std::vector<std::complex<float>> zs;
+        for (int x : xs) {
+            for (int y : ys) {
+                zs.push_back(std::complex<float>(3.0*(float)x/originalSize+x_min, 3.0*(float)y/originalSize+y_min));
             }
         }
+
+        std::cout << "zs.size = " << zs.size() << std::endl;
+        auto start2 = std::chrono::high_resolution_clock::now();
+        MandelbrotSet set = MandelbrotSet(zs, 50);
+        auto end2 = std::chrono::high_resolution_clock::now();
+        std::cout << "It took " << std::chrono::duration_cast<std::chrono::milliseconds>(end2 - start2).count() << " ms" << std::endl;
+
+        std::vector<MandelbrotPoint> points = set.getSet();
+        std::vector<bool> isMandelbrotSet = set.getIsMandelbrotSet();
+        std::vector<unsigned int> iterations = set.getIterations();
+
+        for (int count = 0; count < points.size(); count++) {
+            int x = count / originalSize;
+            int y = count % originalSize;
+
+            int val = isMandelbrotSet.at(count) ? 0 : 255 * (int)iterations.at(count) / 50;
+            imageMat.at<cv::Vec3b>(y, x) = cv::Vec3b(0, val, 0);
+        }
+
         auto end = std::chrono::high_resolution_clock::now();
         std::cout << "It took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
 
-        auto durationToSleep = std::chrono::microseconds(2000) - std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        MandelbrotDisplay display = MandelbrotDisplay(imageMat, width, 3.0 / width, x_min, y_min);
 
-        std::this_thread::sleep_for(durationToSleep);
+        //auto durationToSleep = std::chrono::microseconds(2000) - std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+        //std::this_thread::sleep_for(durationToSleep);
         cv::namedWindow(windowName);
 
         cv::setMouseCallback(windowName, onMouse, 0);
@@ -193,7 +229,7 @@ void showMandelbrotSet() {
         selection.width = size;
         selection.height = size;
         
-        cv::Mat image = imageMat.clone();
+        cv::Mat image = display.getMandelbrotSet().clone();
         cv::rectangle(image, selection, cv::Vec3b(255,255,255));
         cv::imshow(windowName, image);
 
