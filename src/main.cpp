@@ -24,30 +24,6 @@ cv::Point origin;
 cv::Rect selection(0, 0, 100, 100);
 cv::Mat imageMat(width, height, CV_8UC3, cv::Vec3b(0,0,0));
 
-int value(int x, int y, float x_min, float y_min) {
-    std::complex<float> point(3.0*(float)x/width+x_min, 3.0*(float)y/height+y_min);
-
-    MandelbrotPoint mPoint = MandelbrotPoint(point, (unsigned int) 50);
-
-    if (mPoint.isMandelBrotSet()) {
-        return 0;
-    } else {
-        return 255 * (int)mPoint.getIteration() / 50;
-    }
-}
-
-int zoomedValue(float x, float y) {
-    std::complex<float> point(x, y);
-
-    MandelbrotPoint mPoint = MandelbrotPoint(point, (unsigned int) 50);
-
-    if (mPoint.isMandelBrotSet()) {
-        return 0;
-    } else {
-        return 255 * (int)mPoint.getIteration() / 50;
-    }
-}
-
 void onMouse(int event, int x, int y, int flags, void* )
 {
     switch(event) {
@@ -147,16 +123,35 @@ void onMouse(int event, int x, int y, int flags, void* )
             break;
     }
 
+    std::vector<int> xs(width);
+    std::iota(xs.begin(), xs.end(), 0);
+    std::vector<int> ys(height);
+    std::iota(ys.begin(), ys.end(), 0);
     cv::Mat zoomedImageMat(width, height, CV_8UC3, cv::Vec3b(0,0,0));
-    auto start = std::chrono::high_resolution_clock::now();
-    for (int x2 = 0; x2 < width; x2++) {
-        for (int y2 = 0; y2 < height; y2++) {
-            float real_x = 3.0 * ((float)x2 * selection.width / width + selection.x) / width - 2.0;
-            float real_y = 3.0 * ((float)y2 * selection.height / height + selection.y) / height - 1.5;
 
-            int val = zoomedValue(real_x, real_y);
-            zoomedImageMat.at<cv::Vec3b>(y2, x2) = cv::Vec3b(val,val,val);
+    std::vector<std::complex<float>> zs;
+    for (int x : xs) {
+        for (int y : ys) {
+            zs.push_back(std::complex<float>(3.0 * ((float)x * selection.width / width + selection.x) / width - 2.0, 3.0 * ((float)y * selection.height / height + selection.y) / height - 1.5));
         }
+    }
+
+    auto start2 = std::chrono::high_resolution_clock::now();
+    MandelbrotSet set = MandelbrotSet(zs, 50);
+    auto end2 = std::chrono::high_resolution_clock::now();
+    std::cout << "It took " << std::chrono::duration_cast<std::chrono::milliseconds>(end2 - start2).count() << " ms" << std::endl;
+
+    auto start = std::chrono::high_resolution_clock::now();
+    std::vector<MandelbrotPoint> points = set.getSet();
+    std::vector<bool> isMandelbrotSet = set.getIsMandelbrotSet();
+    std::vector<unsigned int> iterations = set.getIterations();
+
+    for (int count = 0; count < points.size(); count++) {
+        int x = count / originalSize;
+        int y = count % originalSize;
+
+        int val = isMandelbrotSet.at(count) ? 0 : 255 * (int)iterations.at(count) / 50;
+        zoomedImageMat.at<cv::Vec3b>(y, x) = cv::Vec3b(0, val, 0);
     }
     auto end = std::chrono::high_resolution_clock::now();
 
@@ -170,10 +165,6 @@ void onMouse(int event, int x, int y, int flags, void* )
 
 void showMandelbrotSet() {
     //while(true) {
-        //std::random_device rd; 
-        //std::mt19937 gen(rd());
-        //std::uniform_real_distribution<float> uniform_dist(-1.0, 1.0);
-
         float x_min = -2.0;
         float y_min = -1.5;
 
@@ -181,11 +172,9 @@ void showMandelbrotSet() {
 
         std::vector<int> xs(originalSize);
         std::iota(xs.begin(), xs.end(), 0);
-        std::cout << "xs.size = " << xs.size() << std::endl;
 
         std::vector<int> ys(originalSize);
         std::iota(ys.begin(), ys.end(), 0);
-        std::cout << "xs.size = " << xs.size() << std::endl;
 
         std::vector<std::complex<float>> zs;
         for (int x : xs) {
@@ -194,7 +183,6 @@ void showMandelbrotSet() {
             }
         }
 
-        std::cout << "zs.size = " << zs.size() << std::endl;
         auto start2 = std::chrono::high_resolution_clock::now();
         MandelbrotSet set = MandelbrotSet(zs, 50);
         auto end2 = std::chrono::high_resolution_clock::now();
@@ -232,9 +220,6 @@ void showMandelbrotSet() {
         cv::Mat image = display.getMandelbrotSet().clone();
         cv::rectangle(image, selection, cv::Vec3b(255,255,255));
         cv::imshow(windowName, image);
-
-        //cv::Rect roi = cv::selectROI(imageMat);
-        //std::cout << "roi = " << roi << std::endl;
 
         cv::waitKey(0);
         //if((char)27 == cv::waitKey(30)) {
