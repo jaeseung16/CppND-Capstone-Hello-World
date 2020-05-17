@@ -3,7 +3,7 @@
 class MandelbrotPoint
 {
 public:
-    MandelbrotPoint(std::complex<float> &point, unsigned int _maxIteration);
+    MandelbrotPoint(std::complex<float> &&point, unsigned int _maxIteration);
 
     void setPoint(std::complex<float> point) { _point = point; }
     std::complex<float> getPoint() { return _point; }
