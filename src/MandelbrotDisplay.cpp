@@ -3,6 +3,8 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/mat.hpp>
+#include <opencv2/core/utility.hpp>
+#include <opencv2/core/types.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include "MandelbrotDisplay.h"
 
@@ -62,7 +64,7 @@ void MandelbrotDisplay::generateMandelbrotSet() {
     _mandelbrotSet = MandelbrotSet(std::move(zs), 50);
 
     auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "It took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
+    std::cout << "MandelbrotDisplay::generateMandelbrotSet() took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
 }
 
 void MandelbrotDisplay::generateMat() {
@@ -72,15 +74,17 @@ void MandelbrotDisplay::generateMat() {
     std::vector<MandelbrotPoint> points = _mandelbrotSet.getSet();
     std::vector<bool> isMandelbrotSet = _mandelbrotSet.getIsMandelbrotSet();
     std::vector<unsigned int> iterations = _mandelbrotSet.getIterations();
+    std::vector<int> values = _mandelbrotSet.getValues();
 
-    for (int count = 0; count < points.size(); count++) {
-        int x = count / _size;
-        int y = count % _size;
-
-        int val = isMandelbrotSet.at(count) ? 0 : 255 * (int)iterations.at(count) / 50;
-        _mat.at<cv::Vec3b>(y, x) = cv::Vec3b(0, val, 0);
-    }
+    cv::parallel_for_ (cv::Range(0, values.size()), [&](const cv::Range& range) {
+        for (int count = range.start; count < range.end; count++) {
+            int x = count / _size;
+            int y = count % _size;
+            //int val = isMandelbrotSet.at(count) ? 0 : 255 * (int)iterations.at(count) / 50;
+            _mat.at<cv::Vec3b>(y, x) = cv::Vec3b(0, values[count], 0);
+        }
+    });
 
     auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "It took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
+    std::cout << "MandelbrotDisplay::generateMat() took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
 }

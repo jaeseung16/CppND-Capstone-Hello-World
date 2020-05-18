@@ -1,4 +1,7 @@
 #include <iostream>
+#include <chrono>
+#include <thread>
+
 #include "MandelbrotExplorer.h"
 
 const cv::Rect_<float> MandelbrotExplorer::defaultRect = cv::Rect_(-2.0, -1.5, 3.0, 3.0);
@@ -24,31 +27,30 @@ MandelbrotExplorer::MandelbrotExplorer() {
 void MandelbrotExplorer::getRangeToZoom() {
     float range = MandelbrotExplorer::defaultRect.width;
 
-    float xmin_zoomed = _regionToZoomed.x + 125 * range / (float) (MandelbrotExplorer::defaultDisplaySize + 1);
-    float ymin_zoomed = _regionToZoomed.y + 350 * range / (float) (MandelbrotExplorer::defaultDisplaySize + 1);
-    float range_zoomed = 100 * range / (float) (MandelbrotExplorer::defaultDisplaySize + 1);
+    float xmin_zoomed = _regionToZoomed.x + 125 * range / (float) (defaultDisplaySize + 1);
+    float ymin_zoomed = _regionToZoomed.y + 350 * range / (float) (defaultDisplaySize + 1);
+    float range_zoomed = 100 * range / (float) (defaultDisplaySize + 1);
 }
 
 void MandelbrotExplorer::showMandelbrotSet() {
     std::string windowName = "Mandelbrot";
     cv::namedWindow(windowName);
     cv::setMouseCallback(windowName, MandelbrotExplorer::onMouse, this);
-    //while(true) {
+    while(true) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         cv::Mat image = _staticDisplay.getMat().clone();
-        cv::rectangle(image, _regionToZoomed, cv::Vec3b(255,255,255));
+        cv::rectangle(image, _regionToZoomed, seletionColor);
         cv::imshow(windowName, image);
 
-        //auto durationToSleep = std::chrono::microseconds(2000) - std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        //std::this_thread::sleep_for(durationToSleep);
-        
         cv::imshow("zoomed Mandelbrot", _zoomedDisplay.getMat());
 
-        cv::waitKey(0);
-        //if((char)27 == cv::waitKey(30)) {
-        //    break;
-        //}  
-    //}
+        //cv::waitKey(33);
+        // Quit when ESC pressed
+        if((char)27 == cv::waitKey(30)) {
+            break;
+        }  
+    }
 }
 
 void MandelbrotExplorer::onMouse(int event, int x, int y, int flags, void *that) {
@@ -142,11 +144,11 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
             }
             break;
     }
-
+/*
     cv::Mat image = _staticDisplay.getMat().clone();
     cv::rectangle(image, _regionToZoomed, seletionColor);
     cv::imshow(windowName, image);
-
+*/
     std::cout << "Selection in image = " << _regionToZoomed << std::endl;
     float xmin_zoomed = -2.0 + 3.0 * (float)_regionToZoomed.x / (defaultDisplaySize+1);
     float ymin_zoomed = -1.5 + 3.0 * (float)_regionToZoomed.y / (defaultDisplaySize+1);
@@ -154,5 +156,6 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
     std::cout << "Selection = " << cv::Rect_<float>(xmin_zoomed, ymin_zoomed, range_zoomed, range_zoomed) << std::endl;
     _zoomedDisplay = MandelbrotDisplay(cv::Rect_<float>(xmin_zoomed, ymin_zoomed, range_zoomed, range_zoomed), defaultDisplaySize);
 
-    cv::imshow("zoomed Mandelbrot", _zoomedDisplay.getMat());
+    //cv::imshow("zoomed Mandelbrot", _zoomedDisplay.getMat());
+    
 }
