@@ -35,12 +35,7 @@ MandelbrotDisplay::MandelbrotDisplay(cv::Rect_<float> selection, int size) {
     _xmax = _xmin + _scale * (float)(size-1);
     _ymax = _ymin + _scale * (float)(size-1);
 
-    //std::cout << "scale = " << _scale << std::endl;
-    //std::cout << "_xmin = " << _xmin << std::endl;
-    //std::cout << "_xmax = " << _xmax << std::endl;
-    //std::cout << "_ymin = " << _ymin << std::endl;
-    //std::cout << "_ymax = " << _ymax << std::endl;
-
+    _mat = cv::Mat(_size, _size, CV_8UC3, cv::Vec3b(0,0,0));
     generateMandelbrotSet();
     generateMat();
 }
@@ -69,11 +64,9 @@ void MandelbrotDisplay::generateMandelbrotSet() {
 
 void MandelbrotDisplay::generateMat() {
     auto start = std::chrono::high_resolution_clock::now();
-
-    _mat = cv::Mat(_size, _size, CV_8UC3, cv::Vec3b(0,0,0));
-    std::vector<MandelbrotPoint> points = _mandelbrotSet.getSet();
-    std::vector<bool> isMandelbrotSet = _mandelbrotSet.getIsMandelbrotSet();
-    std::vector<unsigned int> iterations = _mandelbrotSet.getIterations();
+    //std::vector<MandelbrotPoint> points = _mandelbrotSet.getSet();
+    //std::vector<bool> isMandelbrotSet = _mandelbrotSet.getIsMandelbrotSet();
+    //std::vector<unsigned int> iterations = _mandelbrotSet.getIterations();
     std::vector<int> values = _mandelbrotSet.getValues();
 
     cv::parallel_for_ (cv::Range(0, values.size()), [&](const cv::Range& range) {
@@ -87,4 +80,15 @@ void MandelbrotDisplay::generateMat() {
 
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "MandelbrotDisplay::generateMat() took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
+}
+
+void MandelbrotDisplay::updateRect(cv::Rect_<float> selection) {
+    _scale = selection.width / (float)(_size+1);
+    _xmin = selection.x;
+    _ymin = selection.y;
+    _xmax = _xmin + _scale * (float)(_size-1);
+    _ymax = _ymin + _scale * (float)(_size-1);
+
+    generateMandelbrotSet();
+    generateMat();
 }

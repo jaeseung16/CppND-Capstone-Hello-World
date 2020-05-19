@@ -14,6 +14,8 @@ public:
     cv::Mat getMat() { return _mat; };
     MandelbrotSet getMandelbrotSet() { return _mandelbrotSet; };
 
+    void updateRect(cv::Rect_<float> selection);
+
 private:
     cv::Mat _mat;
     MandelbrotSet _mandelbrotSet = MandelbrotSet();
