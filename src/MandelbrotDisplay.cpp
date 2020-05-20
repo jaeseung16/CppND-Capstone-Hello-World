@@ -27,13 +27,14 @@ MandelbrotDisplay::MandelbrotDisplay(cv::Point point, int size, float scale) {
     _ymax = _ymin + _scale * (float)(size-1);
 }
 
-MandelbrotDisplay::MandelbrotDisplay(cv::Rect_<float> selection, int size) {
+MandelbrotDisplay::MandelbrotDisplay(cv::Rect_<float> selection, int size, MandelbrotColor::Color color) {
     _size = size;
     _scale = selection.width / (float)(size+1);
     _xmin = selection.x;
     _ymin = selection.y;
     _xmax = _xmin + _scale * (float)(size-1);
     _ymax = _ymin + _scale * (float)(size-1);
+    _color = MandelbrotColor::convertToVec3b(color) / 255.0;
 
     _mat = cv::Mat(_size, _size, CV_8UC3, cv::Vec3b(0,0,0));
     generateMandelbrotSet();
@@ -74,7 +75,7 @@ void MandelbrotDisplay::generateMat() {
             int x = count / _size;
             int y = count % _size;
             //int val = isMandelbrotSet.at(count) ? 0 : 255 * (int)iterations.at(count) / 50;
-            _mat.at<cv::Vec3b>(y, x) = cv::Vec3b(0, values[count], 0);
+            _mat.at<cv::Vec3b>(y, x) = values[count] * _color;
         }
     });
 
