@@ -12,7 +12,7 @@ public:
     MandelbrotDisplay(cv::Rect_<float> selection, int size, MandelbrotColor::Color color);
     MandelbrotDisplay(cv::Point point, int size, float scale);
 
-    cv::Mat getMat() { return _mat; };
+    cv::Mat getMat() { return _mat.clone(); };
     MandelbrotSet getMandelbrotSet() { return _mandelbrotSet; };
 
     void updateRect(cv::Rect_<float> selection);
