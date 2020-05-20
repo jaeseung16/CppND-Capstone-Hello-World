@@ -65,16 +65,12 @@ void MandelbrotDisplay::generateMandelbrotSet() {
 
 void MandelbrotDisplay::generateMat() {
     auto start = std::chrono::high_resolution_clock::now();
-    //std::vector<MandelbrotPoint> points = _mandelbrotSet.getSet();
-    //std::vector<bool> isMandelbrotSet = _mandelbrotSet.getIsMandelbrotSet();
-    //std::vector<unsigned int> iterations = _mandelbrotSet.getIterations();
     std::vector<int> values = _mandelbrotSet.getValues();
 
     cv::parallel_for_ (cv::Range(0, values.size()), [&](const cv::Range& range) {
         for (int count = range.start; count < range.end; count++) {
             int x = count / _size;
             int y = count % _size;
-            //int val = isMandelbrotSet.at(count) ? 0 : 255 * (int)iterations.at(count) / 50;
             _mat.at<cv::Vec3b>(y, x) = values[count] * _color;
         }
     });
