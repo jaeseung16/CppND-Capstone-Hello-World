@@ -7,7 +7,6 @@
 const cv::Rect_<float> MandelbrotExplorer::defaultRect = cv::Rect_<float>(-2.0, -1.5, 3.0, 3.0);
 const cv::Rect_<float> MandelbrotExplorer::initialZoomedRect = cv::Rect_<float>(-1.5, -0.2, 0.4, 0.4);
 const int MandelbrotExplorer::defaultDisplaySize = 800;
-const cv::Rect defaultDisplayRect = cv::Rect(0, 0, MandelbrotExplorer::defaultDisplaySize, MandelbrotExplorer::defaultDisplaySize);
 
 MandelbrotExplorer::MandelbrotExplorer() {
     std::cout << "### MandelbrotExplorer ###" << std::endl;
@@ -18,6 +17,7 @@ MandelbrotExplorer::MandelbrotExplorer() {
     float regionY = (int) ((initialZoomedRect.y - defaultRect.y) * (float)defaultDisplaySize / defaultRect.width);
     
     _regionToZoomed = cv::Rect((int)regionX, (int)regionY, (int)range, (int)range);
+    _defaultDisplayRect = cv::Rect(0, 0, defaultDisplaySize, defaultDisplaySize);
     
     std::cout << "initialZoomedRect = " << initialZoomedRect << std::endl;
     std::cout << "_regionToZoomed = " << _regionToZoomed << std::endl;
@@ -52,7 +52,7 @@ void MandelbrotExplorer::showMandelbrotSet() {
         cv::rectangle(image, _regionToZoomed, _colorForRegionToZoomed);
         cv::imshow(windowName, image);
 
-        _zoomedDisplay.updateRect(convertRangeToZoomedToComplex());
+        //_zoomedDisplay.updateRect(convertRangeToZoomedToComplex());
 
         cv::imshow("zoomed Mandelbrot", _zoomedDisplay.getMat());
 
@@ -68,27 +68,8 @@ void MandelbrotExplorer::showMandelbrotSet() {
     }
 }
 
-void MandelbrotExplorer::updateColor(Color color) {
-    switch(color) {
-        case Color::Red:
-            _colorForRegionToZoomed = cv::Vec3b(0,0,255);
-            break;
-        case Color::Yellow:
-            _colorForRegionToZoomed = cv::Vec3b(0,255,255);
-            break;
-        case Color::Green:
-            _colorForRegionToZoomed = cv::Vec3b(0,255,0);
-            break;
-        case Color::Cyan:
-            _colorForRegionToZoomed = cv::Vec3b(255,255,0);
-            break;
-        case Color::Blue:
-            _colorForRegionToZoomed = cv::Vec3b(255,0,0);
-            break;
-        case Color::White:
-            _colorForRegionToZoomed = cv::Vec3b(255,255,255);
-            break;
-    }
+void MandelbrotExplorer::updateColor(MandelbrotColor::Color color) {
+    _colorForRegionToZoomed = MandelbrotColor::convertToVec3b(color);
 }
 
 void MandelbrotExplorer::onMouse(int event, int x, int y, int flags, void *that) {
@@ -98,7 +79,7 @@ void MandelbrotExplorer::onMouse(int event, int x, int y, int flags, void *that)
 
 void MandelbrotExplorer::moveRegion(cv::Point &&point) {
     cv::Rect tempRegion = _regionToZoomed + point - _origin;
-    if (!defaultDisplayRect.contains(_regionToZoomed.tl() + point - _origin) || !defaultDisplayRect.contains(_regionToZoomed.br() + point - _origin))
+    if (!_defaultDisplayRect.contains(tempRegion.tl()) || !_defaultDisplayRect.contains(tempRegion.br()))
     {
         if (tempRegion.x < 0) {
             tempRegion.x = 0;
@@ -127,9 +108,12 @@ void MandelbrotExplorer::shrinkRegion(int &&delta) {
 }
 
 void MandelbrotExplorer::enlargeRegion(int &&delta) {
+    std::cout << "delta = " << delta << std::endl;
     if (delta > 0) {
         cv::Rect tempRegion = _regionToZoomed + cv::Size_<int>(delta, delta);
-        if (!defaultDisplayRect.contains(tempRegion.br())) {
+        std::cout << "tempRegion = " << tempRegion << std::endl;
+        std::cout << "_defaultDisplayRect = " << _defaultDisplayRect << std::endl;
+        if (!_defaultDisplayRect.contains(tempRegion.br())) {
             if (tempRegion.x > tempRegion.y) {
                 tempRegion.width = defaultDisplaySize - tempRegion.x;
                 tempRegion.height = tempRegion.width;
@@ -137,8 +121,9 @@ void MandelbrotExplorer::enlargeRegion(int &&delta) {
                 tempRegion.height = defaultDisplaySize - tempRegion.y;
                 tempRegion.width = tempRegion.height;
             }
-            _regionToZoomed = tempRegion;
         }
+        _regionToZoomed = tempRegion;
+        std::cout << "_regionToZoomed = " << _regionToZoomed << std::endl;
     }
 }
 
@@ -160,7 +145,7 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
                 if (_regionToZoomedTracked == true && isLeftButtonDown) {
                     moveRegion(cv::Point(x,y));
                     updateOrigin(cv::Point(x,y));
-                    updateColor(Color::Cyan);
+                    updateColor(MandelbrotColor::Color::Cyan);
                 }
 
                 if (_regionToZoomedTracked == false && isRightButtonDown) {
@@ -171,34 +156,37 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
                         shrinkRegion(std::move(delta));
                     }
                     updateOrigin(cv::Point(x, y));
-                    updateColor(Color::Yellow);
+                    updateColor(MandelbrotColor::Color::Yellow);
                 }
             }
             break;
         case cv::EVENT_LBUTTONDOWN:
             if (_regionToZoomed.contains(cv::Point(x,y)) && _regionToZoomedTracked == false) {
                 updateOrigin(cv::Point(x,y));
-                updateColor(Color::Cyan);
+                updateColor(MandelbrotColor::Color::Cyan);
                 _regionToZoomedTracked = true;
             } 
             break;
         case cv::EVENT_LBUTTONUP:
             if (_regionToZoomedTracked == true) {
                 moveRegion(cv::Point(x,y));
-                updateColor(Color::White);
+                updateColor(MandelbrotColor::Color::White);
                  _regionToZoomedTracked = false;
             }
             break;
         case cv::EVENT_RBUTTONDOWN:
             if (_regionToZoomed.contains(cv::Point(x,y)) && _regionToZoomedTracked == false) {
                 updateOrigin(cv::Point(x, y));
-                updateColor(Color::Yellow);
+                updateColor(MandelbrotColor::Color::Yellow);
             }
             break;
         case cv::EVENT_RBUTTONUP:
             if (_regionToZoomedTracked == false) {    
-                updateColor(Color::White);
+                updateColor(MandelbrotColor::Color::White);
             }
             break;
     }
+
+    _zoomedDisplay.updateRect(convertRangeToZoomedToComplex());
+
 }
