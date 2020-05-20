@@ -1,3 +1,4 @@
+#include <memory>
 #include <thread>
 
 #include <opencv2/opencv.hpp>
@@ -20,8 +21,8 @@ public:
     void mouseClick(int event, int x, int y, int flags);
 
 private:
-    MandelbrotDisplay _staticDisplay = MandelbrotDisplay(defaultRect, defaultDisplaySize, MandelbrotColor::Color::Red);
-    MandelbrotDisplay _zoomedDisplay = MandelbrotDisplay(initialZoomedRect, defaultDisplaySize, MandelbrotColor::Color::Green);
+    std::unique_ptr<MandelbrotDisplay> _staticDisplay;
+    std::unique_ptr<MandelbrotDisplay> _zoomedDisplay;
 
     cv::Rect _regionToZoomed;
     cv::Point _origin;
