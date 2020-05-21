@@ -10,8 +10,80 @@
 
 #include "MandelbrotSet.h"
 
-MandelbrotSet::MandelbrotSet() {
+MandelbrotSet::MandelbrotSet() {}
 
+MandelbrotSet::~MandelbrotSet() {}
+
+MandelbrotSet::MandelbrotSet(const MandelbrotSet &source) {
+    for (auto it = std::begin(source._zs); it != std::end(source._zs); ++it) {
+        _zs.push_back(*it);
+    }
+
+    for (auto it = std::begin(source._values); it != std::end(source._values); ++it) {
+        _values.push_back(*it);
+    }
+
+    _nIteration = source._nIteration;
+}
+
+MandelbrotSet &MandelbrotSet::operator=(const MandelbrotSet &source) {
+    if (this == &source)
+         return *this;
+
+    for (auto it = std::begin(source._zs); it != std::end(source._zs); ++it) {
+        _zs.push_back(*it);
+    }
+
+    for (auto it = std::begin(source._values); it != std::end(source._values); ++it) {
+        _values.push_back(*it);
+    }
+
+    _nIteration = source._nIteration;
+
+    return *this;
+}
+
+MandelbrotSet::MandelbrotSet(MandelbrotSet &&source) {
+    _zs.clear();
+    _values.clear();
+
+    for (auto it = std::begin(source._zs); it != std::end(source._zs); ++it) {
+        _zs.push_back(std::move(*it));
+    }
+
+    for (auto it = std::begin(source._values); it != std::end(source._values); ++it) {
+        _values.push_back(std::move(*it));
+    }
+
+    _nIteration = source._nIteration;
+    
+    source._zs.clear();
+    source._values.clear();
+    source._nIteration = 0;
+}
+
+MandelbrotSet &MandelbrotSet::operator=(MandelbrotSet &&source) {
+    if (this == &source)
+         return *this;
+
+    _zs.clear();
+    _values.clear();
+
+    for (auto it = std::begin(source._zs); it != std::end(source._zs); ++it) {
+        _zs.push_back(std::move(*it));
+    }
+
+    for (auto it = std::begin(source._values); it != std::end(source._values); ++it) {
+        _values.push_back(std::move(*it));
+    }
+
+    _nIteration = source._nIteration;
+    
+    source._zs.clear();
+    source._values.clear();
+    source._nIteration = 0;
+
+    return *this;
 }
 
 MandelbrotSet::MandelbrotSet(std::vector<std::complex<float>> &&zs, int nIteration) {

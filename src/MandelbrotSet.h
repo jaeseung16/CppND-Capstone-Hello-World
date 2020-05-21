@@ -6,6 +6,12 @@ class MandelbrotSet
 {
 public:
     MandelbrotSet();
+    ~MandelbrotSet();
+    MandelbrotSet(const MandelbrotSet &source);
+    MandelbrotSet &operator=(const MandelbrotSet &source);
+    MandelbrotSet(MandelbrotSet &&source);
+    MandelbrotSet &operator=(MandelbrotSet &&source);
+
     MandelbrotSet(std::vector<std::complex<float>> &&zs, int nIteration);
 
     std::vector<int> getValues() { return _values; }
