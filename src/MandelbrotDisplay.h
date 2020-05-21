@@ -7,10 +7,14 @@
 
 class MandelbrotDisplay {
 public:
-    MandelbrotDisplay(cv::Mat mat, int size, float scale, float xmin, float ymin);
+    MandelbrotDisplay();
+    ~MandelbrotDisplay();
+    MandelbrotDisplay(const MandelbrotDisplay &source);
+    MandelbrotDisplay &operator=(const MandelbrotDisplay &source);
+    MandelbrotDisplay(MandelbrotDisplay &&source);
+    MandelbrotDisplay &operator=(MandelbrotDisplay &&source);
 
     MandelbrotDisplay(cv::Rect_<float> selection, int size, MandelbrotColor::Color color);
-    MandelbrotDisplay(cv::Point point, int size, float scale);
 
     cv::Mat getMat() { return _mat.clone(); };
     MandelbrotSet getMandelbrotSet() { return _mandelbrotSet; };

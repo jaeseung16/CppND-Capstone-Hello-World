@@ -8,23 +8,84 @@
 #include <opencv2/highgui/highgui.hpp>
 #include "MandelbrotDisplay.h"
 
-MandelbrotDisplay::MandelbrotDisplay(cv::Mat mat, int size, float scale, float xmin, float ymin) {
-    _mat = mat;
-    _size = size;
-    _scale = scale;
-    _xmin = xmin;
-    _ymin = ymin;
-    _xmax = _xmin + scale * (float)(size-1);
-    _ymax = _ymin + scale * (float)(size-1);
+MandelbrotDisplay::MandelbrotDisplay() {}
+
+MandelbrotDisplay::~MandelbrotDisplay() {}
+
+MandelbrotDisplay::MandelbrotDisplay(const MandelbrotDisplay &source) {
+    std::cout << "MandelbrotDisplay Copy Constructor" << std::endl;
+    _mat = source._mat;
+    _color = source._color;
+    _mandelbrotSet = source._mandelbrotSet;
+    _size = source._size;
+    _scale = source._scale;
+    _xmin = source._xmin;
+    _xmax = source._xmax;
+    _ymin = source._ymin;
+    _ymax = source._ymax;
 }
 
-MandelbrotDisplay::MandelbrotDisplay(cv::Point point, int size, float scale) {
-    _size = size;
-    _scale = scale;
-    _xmin = point.x;
-    _ymin = point.y;
-    _xmax = _xmin + _scale * (float)(size-1);
-    _ymax = _ymin + _scale * (float)(size-1);
+MandelbrotDisplay &MandelbrotDisplay::operator=(const MandelbrotDisplay &source) {
+    std::cout << "MandelbrotDisplay Copy Assignment Operator" << std::endl;
+    if (this == &source)
+        return *this;
+
+    _mat = source._mat;
+    _color = source._color;
+    _mandelbrotSet = source._mandelbrotSet;
+    _size = source._size;
+    _scale = source._scale;
+    _xmin = source._xmin;
+    _xmax = source._xmax;
+    _ymin = source._ymin;
+    _ymax = source._ymax;
+    
+    return *this;
+}
+
+MandelbrotDisplay::MandelbrotDisplay(MandelbrotDisplay &&source) {
+    std::cout << "MandelbrotDisplay Move Constructor" << std::endl;
+    _mat = std::move(source._mat);
+    _color = std::move(source._color);
+    _mandelbrotSet = std::move(source._mandelbrotSet);
+    _size = source._size;
+    _scale = source._scale;
+    _xmin = source._xmin;
+    _xmax = source._xmax;
+    _ymin = source._ymin;
+    _ymax = source._ymax;
+
+    source._size = 0;
+    source._scale = 0.0;
+    source._xmin = 0.0;
+    source._xmax = 0.0;
+    source._ymin = 0.0;
+    source._ymax = 0.0;
+}
+
+MandelbrotDisplay &MandelbrotDisplay::operator=(MandelbrotDisplay &&source) {
+    std::cout << "MandelbrotDisplay Move Assignment Operator" << std::endl;
+    if (this == &source)
+        return *this;
+
+    _mat = std::move(source._mat);
+    _color = std::move(source._color);
+    _mandelbrotSet = std::move(source._mandelbrotSet);
+    _size = source._size;
+    _scale = source._scale;
+    _xmin = source._xmin;
+    _xmax = source._xmax;
+    _ymin = source._ymin;
+    _ymax = source._ymax;
+
+    source._size = 0;
+    source._scale = 0.0;
+    source._xmin = 0.0;
+    source._xmax = 0.0;
+    source._ymin = 0.0;
+    source._ymax = 0.0;
+
+    return *this;
 }
 
 MandelbrotDisplay::MandelbrotDisplay(cv::Rect_<float> selection, int size, MandelbrotColor::Color color) {
