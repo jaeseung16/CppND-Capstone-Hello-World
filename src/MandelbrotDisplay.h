@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -17,20 +19,20 @@ public:
     MandelbrotDisplay(cv::Rect_<float> selection, int size, MandelbrotColor::Color color);
 
     cv::Mat getMat() { return _mat.clone(); };
-    MandelbrotSet getMandelbrotSet() { return _mandelbrotSet; };
+    MandelbrotSet getMandelbrotSet() { return *_mandelbrotSet; };
 
     void updateRect(cv::Rect_<float> selection);
 
 private:
     cv::Mat _mat;
-    MandelbrotSet _mandelbrotSet = MandelbrotSet();
+    cv::Vec3b _color;
+    std::unique_ptr<MandelbrotSet> _mandelbrotSet;
     int _size;
     float _scale;
     float _xmin;
     float _xmax;
     float _ymin;
     float _ymax;
-    cv::Vec3b _color;
 
     void generateMandelbrotSet();
     void generateMat();

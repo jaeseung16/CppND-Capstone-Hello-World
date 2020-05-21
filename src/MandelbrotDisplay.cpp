@@ -16,7 +16,7 @@ MandelbrotDisplay::MandelbrotDisplay(const MandelbrotDisplay &source) {
     std::cout << "MandelbrotDisplay Copy Constructor" << std::endl;
     _mat = source._mat;
     _color = source._color;
-    _mandelbrotSet = source._mandelbrotSet;
+    _mandelbrotSet = std::make_unique<MandelbrotSet>(*(source._mandelbrotSet));
     _size = source._size;
     _scale = source._scale;
     _xmin = source._xmin;
@@ -32,7 +32,7 @@ MandelbrotDisplay &MandelbrotDisplay::operator=(const MandelbrotDisplay &source)
 
     _mat = source._mat;
     _color = source._color;
-    _mandelbrotSet = source._mandelbrotSet;
+    _mandelbrotSet = std::make_unique<MandelbrotSet>(*(source._mandelbrotSet));
     _size = source._size;
     _scale = source._scale;
     _xmin = source._xmin;
@@ -118,7 +118,7 @@ void MandelbrotDisplay::generateMandelbrotSet() {
         }
     }
 
-    _mandelbrotSet = MandelbrotSet(std::move(zs), 50);
+    _mandelbrotSet = std::make_unique<MandelbrotSet>(std::move(zs), 50);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "MandelbrotDisplay::generateMandelbrotSet() took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
@@ -126,7 +126,7 @@ void MandelbrotDisplay::generateMandelbrotSet() {
 
 void MandelbrotDisplay::generateMat() {
     auto start = std::chrono::high_resolution_clock::now();
-    std::vector<int> values = _mandelbrotSet.getValues();
+    std::vector<int> values = _mandelbrotSet->getValues();
 
     cv::parallel_for_ (cv::Range(0, values.size()), [&](const cv::Range& range) {
         for (int count = range.start; count < range.end; count++) {
