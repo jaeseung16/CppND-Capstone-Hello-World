@@ -22,7 +22,8 @@ MandelbrotExplorer::MandelbrotExplorer() {
     _defaultDisplayRect = cv::Rect(0, 0, defaultDisplaySize, defaultDisplaySize);
 
     _zoomedDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(initialZoomedRect, defaultDisplaySize, MandelbrotColor::Color::Green));
-    
+    _zoomedDisplay->simulate();
+
     std::cout << "initialZoomedRect = " << initialZoomedRect << std::endl;
     std::cout << "_regionToZoomed = " << _regionToZoomed << std::endl;
 
@@ -48,27 +49,30 @@ void MandelbrotExplorer::showMandelbrotSet() {
     std::string windowName = "Mandelbrot";
     cv::namedWindow(windowName);
     cv::setMouseCallback(windowName, MandelbrotExplorer::onMouse, this);
+    cv::Mat zoomedImage = _zoomedDisplay->getMat();
     while(true) {
-        auto start = std::chrono::high_resolution_clock::now();
+        //auto start = std::chrono::high_resolution_clock::now();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         cv::Mat image = _staticDisplay->getMat();
         cv::rectangle(image, _regionToZoomed, _colorForRegionToZoomed);
         cv::imshow(windowName, image);
 
-        //_zoomedDisplay.updateRect(convertRangeToZoomedToComplex());
-
-        cv::imshow("zoomed Mandelbrot", _zoomedDisplay->getMat());
+        if (_zoomedDisplay->isUpdated()) {
+            std::cout << "Updating _zoomedDisplay " << (_zoomedDisplay->isUpdated()) << std::endl;
+            zoomedImage = _zoomedDisplay->getMat();
+        }
+        cv::imshow("zoomed Mandelbrot", zoomedImage);
 
         //cv::waitKey(33);
         // Quit when ESC pressed
         if((char)27 == cv::waitKey(30)) {
+            std::cout << "ESC PRESSED" << std::endl;
             break;
         }  
 
-        auto end = std::chrono::high_resolution_clock::now();
+        //auto end = std::chrono::high_resolution_clock::now();
         //std::cout << "MandelbrotExplorer::showMandelbrotSet() took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
-
     }
 }
 
