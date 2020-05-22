@@ -1,5 +1,7 @@
 #include <memory>
 #include <future>
+#include <mutex>
+#include <thread>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/mat.hpp>
@@ -18,13 +20,14 @@ public:
     MandelbrotDisplay &operator=(MandelbrotDisplay &&source);
 
     MandelbrotDisplay(cv::Rect_<float> selection, int size, MandelbrotColor::Color color);
-    void generateMandelbrotSet(std::promise<void> &&promise);
 
-    cv::Mat getMat() { return _mat.clone(); };
+    cv::Mat getMat();
     MandelbrotSet getMandelbrotSet() { return *_mandelbrotSet; };
 
     void updateRect(cv::Rect_<float> selection);
     bool isReadyToDisplay() { return _readyToDisplay; };
+    void simulate();
+    bool isUpdated();
 
 private:
     cv::Mat _mat;
@@ -39,6 +42,19 @@ private:
 
     bool _readyToDisplay;
 
+    enum Status { needToUpdate, readyToDisplay, waitForUpdate, done };
+
+    Status _status;
+    std::mutex _mutex;
+
+    std::vector<std::thread> threads;
+
+    MandelbrotDisplay::Status getStatus();
+    void setStatus(MandelbrotDisplay::Status status);
+
     void generateMat();
+    void cycleThroughPhases();
+
+    void generateMandelbrotSet();
 
 };

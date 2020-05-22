@@ -14,7 +14,15 @@
 
 MandelbrotDisplay::MandelbrotDisplay() {}
 
-MandelbrotDisplay::~MandelbrotDisplay() {}
+MandelbrotDisplay::~MandelbrotDisplay() {
+    setStatus(MandelbrotDisplay::Status::done);
+    if (threads.size() > 0) {
+        std::for_each(threads.begin(), threads.end(), [](std::thread &t) {
+            std::cout << "joining" << std::endl;
+            t.join();
+        });
+    }
+}
 
 MandelbrotDisplay::MandelbrotDisplay(const MandelbrotDisplay &source) {
     std::cout << "MandelbrotDisplay Copy Constructor" << std::endl;
@@ -109,17 +117,11 @@ MandelbrotDisplay::MandelbrotDisplay(cv::Rect_<float> selection, int size, Mande
     _color = MandelbrotColor::convertToVec3b(color) / 255.0;
     _mat = cv::Mat(_size, _size, CV_8UC3, cv::Vec3b(0,0,0));
 
-    std::promise<void> promise;
-    std::future<void> future = promise.get_future();
-    std::thread t(&MandelbrotDisplay::generateMandelbrotSet, this, std::move(promise));
-
-    future.get();
-    generateMat();
-
-    t.join();
+    generateMandelbrotSet();
+    setStatus(MandelbrotDisplay::Status::readyToDisplay);
 }
 
-void MandelbrotDisplay::generateMandelbrotSet(std::promise<void> &&promise) {
+void MandelbrotDisplay::generateMandelbrotSet() {
     auto start = std::chrono::high_resolution_clock::now();
 
     std::vector<int> xs(_size);
@@ -136,10 +138,11 @@ void MandelbrotDisplay::generateMandelbrotSet(std::promise<void> &&promise) {
     }
 
     _mandelbrotSet = std::make_unique<MandelbrotSet>(std::move(zs), 50);
-    promise.set_value();
 
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "MandelbrotDisplay::generateMandelbrotSet() took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
+
+    generateMat();
 }
 
 void MandelbrotDisplay::generateMat() {
@@ -159,16 +162,66 @@ void MandelbrotDisplay::generateMat() {
 }
 
 void MandelbrotDisplay::updateRect(cv::Rect_<float> selection) {
-    _scale = selection.width / (float)(_size+1);
-    _xmin = selection.x;
-    _ymin = selection.y;
-    _xmax = _xmin + _scale * (float)(_size-1);
-    _ymax = _ymin + _scale * (float)(_size-1);
+    
+        if (MandelbrotDisplay::Status::waitForUpdate == getStatus()) {
+            _scale = selection.width / (float)(_size+1);
+            _xmin = selection.x;
+            _ymin = selection.y;
+            _xmax = _xmin + _scale * (float)(_size-1);
+            _ymax = _ymin + _scale * (float)(_size-1);
 
-    std::promise<void> promise;
-    std::future<void> future = promise.get_future();
-    std::thread t(&MandelbrotDisplay::generateMandelbrotSet, this, std::move(promise));
-    future.get();
-    generateMat();
-    t.join();
+            setStatus(Status::needToUpdate);
+            std::cout << "MandelbrotDisplay::updateRect(), _status = " << getStatus() << std::endl;
+            return;
+        }
+    
 }
+
+void MandelbrotDisplay::simulate() {
+    setStatus(MandelbrotDisplay::Status::waitForUpdate);
+    std::cout << "MandelbrotDisplay::simulate(), _status = " << getStatus() << std::endl;
+    threads.emplace_back(std::thread(&MandelbrotDisplay::cycleThroughPhases, this));
+}
+
+void MandelbrotDisplay::cycleThroughPhases() {
+    while (true) {
+        //auto start = std::chrono::high_resolution_clock::now();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+        if (MandelbrotDisplay::Status::needToUpdate == getStatus()) {
+            //update();
+            generateMandelbrotSet();
+            setStatus(MandelbrotDisplay::Status::readyToDisplay);
+        } else if (MandelbrotDisplay::Status::done == getStatus()) {
+            break;
+        }
+
+        //auto end = std::chrono::high_resolution_clock::now();
+        //std::cout << "MandelbrotDisplay::cycleThroughPhases() took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
+    }
+}
+
+MandelbrotDisplay::Status MandelbrotDisplay::getStatus() {
+    std::lock_guard<std::mutex> lock(_mutex);
+    return _status;
+}
+
+void MandelbrotDisplay::setStatus(MandelbrotDisplay::Status status) {
+    std::lock_guard<std::mutex> lock(_mutex);
+    _status = status;
+    //std::cout << "MandelbrotDisplay::setStatus(), _status = " << status << std::endl;
+}
+
+bool MandelbrotDisplay::isUpdated() {
+    bool isUpdated = MandelbrotDisplay::Status::readyToDisplay == getStatus();
+    if (isUpdated) {
+        //std::cout << "MandelbrotDisplay::isUpdated(), _status = " << getStatus() << std::endl;
+        setStatus(MandelbrotDisplay::Status::waitForUpdate);
+    }
+    return isUpdated;
+}
+
+cv::Mat MandelbrotDisplay::getMat() { 
+    return _mat.clone();
+};
