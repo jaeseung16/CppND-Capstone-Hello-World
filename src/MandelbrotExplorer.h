@@ -39,5 +39,5 @@ private:
     void moveRegion(cv::Rect &region, const cv::Point origin, cv::Point &&point);
     void shrinkRegion(cv::Rect &region, int &&delta);
     void enlargeRegion(cv::Rect &region, int &&delta);
-    int determineDelta(int x, int y);
+    int determineDelta(const cv::Point oldPoint, const cv::Point newPoint);
 };

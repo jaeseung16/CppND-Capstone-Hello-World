@@ -103,7 +103,6 @@ void MandelbrotExplorer::shrinkRegion(cv::Rect &region, int &&delta) {
 }
 
 void MandelbrotExplorer::enlargeRegion(cv::Rect &region, int &&delta) {
-    std::cout << "delta = " << delta << std::endl;
     if (delta > 0) {
         region += cv::Size_<int>(delta, delta);
         std::cout << "_defaultDisplayRect = " << _defaultDisplayRect << std::endl;
@@ -119,10 +118,9 @@ void MandelbrotExplorer::enlargeRegion(cv::Rect &region, int &&delta) {
     }
 }
 
-int MandelbrotExplorer::determineDelta(int x, int y) {
-    int dx = x - _origin.x;
-    int dy = y - _origin.y;
-    return (dx + dy) / 2;
+int MandelbrotExplorer::determineDelta(const cv::Point oldPoint, const cv::Point newPoint) {
+    auto dp = newPoint - oldPoint;
+    return (dp.x + dp.y) / 2;
 }
 
 void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
@@ -130,9 +128,7 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
     cv::Rect _regionToZoomedCandidate = _regionToZoomed;
     cv::Point _originCandidate = _origin;
     MandelbrotColor::Color _colorForRegionToZoomedCandidate = MandelbrotColor::convertToMandelbrotColor(_colorForRegionToZoomed);
-    std::cout << "_regionToZoomed (BEFORE) = " << _regionToZoomedCandidate << std::endl;
-    std::cout << "_colorForRegionToZoomed (BEFORE) = " << _colorForRegionToZoomed << std::endl;
-    std::cout << "_origin (BEFORE) = " << _origin << std::endl;
+
     switch(event) {
         case cv::EVENT_MOUSEMOVE:
             {
@@ -140,13 +136,13 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
                 bool isRightButtonDown = (flags & cv::EVENT_FLAG_RBUTTON) != 0;
 
                 if (_regionToZoomedSelected == true && isLeftButtonDown) {
-                    moveRegion(_regionToZoomedCandidate, _origin, cv::Point(x,y));
+                    moveRegion(_regionToZoomedCandidate, _originCandidate, cv::Point(x,y));
                     _originCandidate = cv::Point(x,y);
                     _colorForRegionToZoomedCandidate = MandelbrotColor::Color::Cyan;
                 }
 
                 if (_regionToZoomedSelected == false && isRightButtonDown) {
-                    int delta = determineDelta(x, y);
+                    int delta = determineDelta(_originCandidate, cv::Point(x,y));
                     if (delta > 0) {
                         enlargeRegion(_regionToZoomedCandidate, std::move(delta));
                     } else if (delta < 0) {
@@ -166,7 +162,7 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
             break;
         case cv::EVENT_LBUTTONUP:
             if (_regionToZoomedSelected == true) {
-                moveRegion(_regionToZoomedCandidate, _origin, cv::Point(x,y));
+                moveRegion(_regionToZoomedCandidate, _originCandidate, cv::Point(x,y));
                 _colorForRegionToZoomedCandidate = MandelbrotColor::Color::White;
                  _regionToZoomedSelected = false;
             }
@@ -184,12 +180,9 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
             break;
     }
 
+    _origin = _originCandidate;
     _regionToZoomed = _regionToZoomedCandidate;
     _colorForRegionToZoomed = MandelbrotColor::convertToVec3b(_colorForRegionToZoomedCandidate);
-    _origin = _originCandidate;
-    std::cout << "_regionToZoomed (AFTER) = " << _regionToZoomed << std::endl;
-    std::cout << "_colorForRegionToZoomed (AFTER) = " << _colorForRegionToZoomed << std::endl;
-    std::cout << "_origin (AFTER) = " << _origin << std::endl;
     _zoomedDisplay->updateRect(convertRangeToZoomedToComplex());
 
 }
