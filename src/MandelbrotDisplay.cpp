@@ -1,11 +1,15 @@
 #include <chrono>
 #include <numeric>
 #include <iostream>
+#include <thread>
+#include <future>
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/core/types.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
 #include "MandelbrotDisplay.h"
 
 MandelbrotDisplay::MandelbrotDisplay() {}
@@ -23,6 +27,7 @@ MandelbrotDisplay::MandelbrotDisplay(const MandelbrotDisplay &source) {
     _xmax = source._xmax;
     _ymin = source._ymin;
     _ymax = source._ymax;
+    _readyToDisplay = source._readyToDisplay;
 }
 
 MandelbrotDisplay &MandelbrotDisplay::operator=(const MandelbrotDisplay &source) {
@@ -39,6 +44,7 @@ MandelbrotDisplay &MandelbrotDisplay::operator=(const MandelbrotDisplay &source)
     _xmax = source._xmax;
     _ymin = source._ymin;
     _ymax = source._ymax;
+    _readyToDisplay = source._readyToDisplay;
     
     return *this;
 }
@@ -54,6 +60,7 @@ MandelbrotDisplay::MandelbrotDisplay(MandelbrotDisplay &&source) {
     _xmax = source._xmax;
     _ymin = source._ymin;
     _ymax = source._ymax;
+    _readyToDisplay = source._readyToDisplay;
 
     source._size = 0;
     source._scale = 0.0;
@@ -61,6 +68,7 @@ MandelbrotDisplay::MandelbrotDisplay(MandelbrotDisplay &&source) {
     source._xmax = 0.0;
     source._ymin = 0.0;
     source._ymax = 0.0;
+    source._readyToDisplay = false;
 }
 
 MandelbrotDisplay &MandelbrotDisplay::operator=(MandelbrotDisplay &&source) {
@@ -77,6 +85,7 @@ MandelbrotDisplay &MandelbrotDisplay::operator=(MandelbrotDisplay &&source) {
     _xmax = source._xmax;
     _ymin = source._ymin;
     _ymax = source._ymax;
+    _readyToDisplay = source._readyToDisplay;
 
     source._size = 0;
     source._scale = 0.0;
@@ -84,11 +93,13 @@ MandelbrotDisplay &MandelbrotDisplay::operator=(MandelbrotDisplay &&source) {
     source._xmax = 0.0;
     source._ymin = 0.0;
     source._ymax = 0.0;
+    source._readyToDisplay = false;
 
     return *this;
 }
 
 MandelbrotDisplay::MandelbrotDisplay(cv::Rect_<float> selection, int size, MandelbrotColor::Color color) {
+    _readyToDisplay = false;
     _size = size;
     _scale = selection.width / (float)(size+1);
     _xmin = selection.x;
@@ -96,13 +107,19 @@ MandelbrotDisplay::MandelbrotDisplay(cv::Rect_<float> selection, int size, Mande
     _xmax = _xmin + _scale * (float)(size-1);
     _ymax = _ymin + _scale * (float)(size-1);
     _color = MandelbrotColor::convertToVec3b(color) / 255.0;
-
     _mat = cv::Mat(_size, _size, CV_8UC3, cv::Vec3b(0,0,0));
-    generateMandelbrotSet();
+
+    std::promise<void> promise;
+    std::future<void> future = promise.get_future();
+    std::thread t(&MandelbrotDisplay::generateMandelbrotSet, this, std::move(promise));
+
+    future.get();
     generateMat();
+
+    t.join();
 }
 
-void MandelbrotDisplay::generateMandelbrotSet() {
+void MandelbrotDisplay::generateMandelbrotSet(std::promise<void> &&promise) {
     auto start = std::chrono::high_resolution_clock::now();
 
     std::vector<int> xs(_size);
@@ -119,6 +136,7 @@ void MandelbrotDisplay::generateMandelbrotSet() {
     }
 
     _mandelbrotSet = std::make_unique<MandelbrotSet>(std::move(zs), 50);
+    promise.set_value();
 
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "MandelbrotDisplay::generateMandelbrotSet() took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
@@ -147,6 +165,10 @@ void MandelbrotDisplay::updateRect(cv::Rect_<float> selection) {
     _xmax = _xmin + _scale * (float)(_size-1);
     _ymax = _ymin + _scale * (float)(_size-1);
 
-    generateMandelbrotSet();
+    std::promise<void> promise;
+    std::future<void> future = promise.get_future();
+    std::thread t(&MandelbrotDisplay::generateMandelbrotSet, this, std::move(promise));
+    future.get();
     generateMat();
+    t.join();
 }

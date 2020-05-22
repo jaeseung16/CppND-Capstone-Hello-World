@@ -1,4 +1,5 @@
 #include <memory>
+#include <future>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/mat.hpp>
@@ -17,11 +18,13 @@ public:
     MandelbrotDisplay &operator=(MandelbrotDisplay &&source);
 
     MandelbrotDisplay(cv::Rect_<float> selection, int size, MandelbrotColor::Color color);
+    void generateMandelbrotSet(std::promise<void> &&promise);
 
     cv::Mat getMat() { return _mat.clone(); };
     MandelbrotSet getMandelbrotSet() { return *_mandelbrotSet; };
 
     void updateRect(cv::Rect_<float> selection);
+    bool isReadyToDisplay() { return _readyToDisplay; };
 
 private:
     cv::Mat _mat;
@@ -34,7 +37,8 @@ private:
     float _ymin;
     float _ymax;
 
-    void generateMandelbrotSet();
+    bool _readyToDisplay;
+
     void generateMat();
 
 };
