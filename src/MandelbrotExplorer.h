@@ -1,5 +1,6 @@
 #include <memory>
 #include <thread>
+#include <future>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/types.hpp>
@@ -30,15 +31,13 @@ private:
     cv::Rect _defaultDisplayRect;
 
     bool _regionToZoomedSelected = false;
-    bool _regionToZoomedTracked = false;  
+    bool _regionToZoomedUpdated = false;
 
     std::mutex _mutex;
 
-    void updateColor(MandelbrotColor::Color color); 
     cv::Rect_<float> convertRangeToZoomedToComplex();
-    void moveRegion(cv::Point &&point);
-    void updateOrigin(cv::Point &&point);
-    void shrinkRegion(int &&delta);
-    void enlargeRegion(int &&delta);
+    void moveRegion(cv::Rect &region, const cv::Point origin, cv::Point &&point);
+    void shrinkRegion(cv::Rect &region, int &&delta);
+    void enlargeRegion(cv::Rect &region, int &&delta);
     int determineDelta(int x, int y);
 };
