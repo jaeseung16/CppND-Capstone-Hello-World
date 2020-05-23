@@ -6,6 +6,7 @@
 
 const cv::Rect_<float> MandelbrotExplorer::defaultRect = cv::Rect_<float>(-2.0, -1.5, 3.0, 3.0);
 const cv::Rect_<float> MandelbrotExplorer::initialZoomedRect = cv::Rect_<float>(-1.5, -0.2, 0.4, 0.4);
+const cv::Rect MandelbrotExplorer::initialRegionToZoomed = cv::Rect(133, 346, 106, 106);
 const int MandelbrotExplorer::defaultDisplaySize = 800;
 
 MandelbrotExplorer::MandelbrotExplorer() {
@@ -21,7 +22,7 @@ MandelbrotExplorer::MandelbrotExplorer() {
     _regionToZoomed = cv::Rect((int)regionX, (int)regionY, (int)range, (int)range);
     _defaultDisplayRect = cv::Rect(0, 0, defaultDisplaySize, defaultDisplaySize);
 
-    _zoomedDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(initialZoomedRect, defaultDisplaySize, MandelbrotColor::Color::Green));
+    _zoomedDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(convertRangeToZoomedToComplex(initialRegionToZoomed), defaultDisplaySize, MandelbrotColor::Color::Green));
     _zoomedDisplay->simulate();
 
     std::cout << "initialZoomedRect = " << initialZoomedRect << std::endl;
@@ -38,10 +39,11 @@ void MandelbrotExplorer::getRangeToZoomed() {
     float range_zoomed = 100 * range / (float) (defaultDisplaySize + 1);
 }
 
-cv::Rect_<float> MandelbrotExplorer::convertRangeToZoomedToComplex() {
-    float xmin_zoomed = -2.0 + 3.0 * (float)_regionToZoomed.x / (defaultDisplaySize+1);
-    float ymin_zoomed = -1.5 + 3.0 * (float)_regionToZoomed.y / (defaultDisplaySize+1);
-    float range_zoomed = 3.0 * (float)(_regionToZoomed.width - 1) / (defaultDisplaySize+1);
+
+cv::Rect_<float> MandelbrotExplorer::convertRangeToZoomedToComplex(cv::Rect regionToZoomed) {
+    float xmin_zoomed = defaultRect.x + defaultRect.width * (float)regionToZoomed.x / (defaultDisplaySize+1);
+    float ymin_zoomed = defaultRect.y + defaultRect.height * (float)regionToZoomed.y / (defaultDisplaySize+1);
+    float range_zoomed = defaultRect.width * (float)(regionToZoomed.width - 1) / (defaultDisplaySize+1);
     return cv::Rect_<float>(xmin_zoomed, ymin_zoomed, range_zoomed, range_zoomed);
 }
 
@@ -200,6 +202,6 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
     _origin = _originCandidate;
     _regionToZoomed = _regionToZoomedCandidate;
     _colorForRegionToZoomed = MandelbrotColor::convertToVec3b(_colorForRegionToZoomedCandidate);
-    _zoomedDisplay->updateRect(convertRangeToZoomedToComplex());
+    _zoomedDisplay->updateRect(convertRangeToZoomedToComplex(_regionToZoomedCandidate));
 
 }

@@ -12,6 +12,7 @@ class MandelbrotExplorer
 public:
     static const cv::Rect_<float> defaultRect;
     static const cv::Rect_<float> initialZoomedRect;
+    static const cv::Rect initialRegionToZoomed;
     static const int defaultDisplaySize;
 
     static void onMouse(int event, int x, int y, int flags, void *that);
@@ -35,7 +36,7 @@ private:
 
     std::mutex _mutex;
 
-    cv::Rect_<float> convertRangeToZoomedToComplex();
+    cv::Rect_<float> convertRangeToZoomedToComplex(cv::Rect regionToZoomed);
     void moveRegion(cv::Rect &region, const cv::Point origin, cv::Point &&point);
     void shrinkRegion(cv::Rect &region, int &&delta);
     void enlargeRegion(cv::Rect &region, int &&delta);
