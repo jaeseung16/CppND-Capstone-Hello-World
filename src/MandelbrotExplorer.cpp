@@ -12,11 +12,10 @@ const int MandelbrotExplorer::defaultDisplaySize = 800;
 MandelbrotExplorer::MandelbrotExplorer() {
     std::cout << "### MandelbrotExplorer ###" << std::endl;
 
-    _staticDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(defaultRect, defaultDisplaySize, MandelbrotColor::Color::Red));
-    
     _defaultDisplayRect = cv::Rect(0, 0, defaultDisplaySize, defaultDisplaySize);
-
     _regionToZoomed = initialRegionToZoomed;
+
+    _staticDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(defaultRect, defaultDisplaySize, MandelbrotColor::Color::Red));
     _zoomedDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(convertRangeToZoomedToComplex(_regionToZoomed), defaultDisplaySize, MandelbrotColor::Color::Green));
     _zoomedDisplay->simulate();
 
@@ -24,14 +23,6 @@ MandelbrotExplorer::MandelbrotExplorer() {
     std::cout << "initialZoomedRect = " << initialZoomedRect << std::endl;
 
     showMandelbrotSet();
-}
-
-void MandelbrotExplorer::getRangeToZoomed() {
-    float range = MandelbrotExplorer::defaultRect.width;
-
-    float xmin_zoomed = _regionToZoomed.x + 125 * range / (float) (defaultDisplaySize + 1);
-    float ymin_zoomed = _regionToZoomed.y + 350 * range / (float) (defaultDisplaySize + 1);
-    float range_zoomed = 100 * range / (float) (defaultDisplaySize + 1);
 }
 
 

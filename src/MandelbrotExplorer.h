@@ -18,7 +18,6 @@ public:
     static void onMouse(int event, int x, int y, int flags, void *that);
 
     MandelbrotExplorer();
-    void getRangeToZoomed();
     void showMandelbrotSet();
     void mouseClick(int event, int x, int y, int flags);
 
