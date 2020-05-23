@@ -137,7 +137,7 @@ void MandelbrotDisplay::generateMandelbrotSet() {
         }
     }
 
-    _mandelbrotSet = std::make_unique<MandelbrotSet>(std::move(zs), 50);
+    _mandelbrotSet = std::make_unique<MandelbrotSet>(std::move(zs), 50, _size);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "MandelbrotDisplay::generateMandelbrotSet() took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
