@@ -22,6 +22,8 @@ public:
     MandelbrotExplorer();
     void showMandelbrotSet();
     void mouseClick(int event, int x, int y, int flags);
+    void setRegionToZoomed(cv::Rect region);
+    cv::Rect getRegionToZoomed();
 
 private:
     std::unique_ptr<MandelbrotDisplay> _staticDisplay;

@@ -15,7 +15,7 @@ MandelbrotExplorer::MandelbrotExplorer() {
     std::cout << "### Initialize MandelbrotExplorer ###" << std::endl;
 
     _defaultDisplayRect = cv::Rect(0, 0, defaultDisplaySize, defaultDisplaySize);
-    _regionToZoomed = initialRegionToZoomed;
+    setRegionToZoomed(initialRegionToZoomed);
 
     _staticDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(defaultRect, defaultDisplaySize, MandelbrotColor::Color::Red));
     _zoomedDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(convertZoomedRegionToRect(_regionToZoomed), defaultDisplaySize, MandelbrotColor::Color::Green));
@@ -30,8 +30,18 @@ cv::Rect_<float> MandelbrotExplorer::convertZoomedRegionToRect(cv::Rect regionTo
     return cv::Rect_<float>(xmin, ymin, range, range);
 }
 
+void MandelbrotExplorer::setRegionToZoomed(cv::Rect region) {
+    std::lock_guard<std::mutex> lock(_mutex);
+    _regionToZoomed = region;
+}
+
+cv::Rect MandelbrotExplorer::getRegionToZoomed() {
+    std::lock_guard<std::mutex> lock(_mutex);
+    return _regionToZoomed;
+}
+
 void MandelbrotExplorer::showMandelbrotSet() {
-    std::cout << "### Initialize MandelbrotExplorer ###" << std::endl;
+    std::cout << "### Present Mandelbrot Set ###" << std::endl;
 
     cv::namedWindow(defaultDiplayWindowName);
     cv::setMouseCallback(defaultDiplayWindowName, MandelbrotExplorer::onMouse, this);
@@ -41,7 +51,7 @@ void MandelbrotExplorer::showMandelbrotSet() {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         cv::Mat image = _staticDisplay->getMat();
-        cv::rectangle(image, _regionToZoomed, _colorForRegionToZoomed);
+        cv::rectangle(image, getRegionToZoomed(), _colorForRegionToZoomed);
         cv::imshow(defaultDiplayWindowName, image);
 
         if (_zoomedDisplay->isUpdated()) {
@@ -50,15 +60,10 @@ void MandelbrotExplorer::showMandelbrotSet() {
         }
         cv::imshow(zoomedDiplayWindowName, zoomedImage);
 
-        //cv::waitKey(33);
-        // Quit when ESC pressed
         if((char)27 == cv::waitKey(30)) {
-            std::cout << "ESC PRESSED" << std::endl;
+            std::cout << "Terminating MandelbrotExplorer" << std::endl;
             break;
         }  
-
-        //auto end = std::chrono::high_resolution_clock::now();
-        //std::cout << "MandelbrotExplorer::showMandelbrotSet() took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
     }
 }
 
@@ -184,7 +189,7 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
     }
 
     _origin = _originCandidate;
-    _regionToZoomed = _regionToZoomedCandidate;
+    setRegionToZoomed(_regionToZoomedCandidate);
     _colorForRegionToZoomed = MandelbrotColor::convertToVec3b(_colorForRegionToZoomedCandidate);
     _zoomedDisplay->updateRect(convertZoomedRegionToRect(_regionToZoomedCandidate));
 
