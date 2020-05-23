@@ -19,42 +19,36 @@ public:
     MandelbrotDisplay(MandelbrotDisplay &&source);
     MandelbrotDisplay &operator=(MandelbrotDisplay &&source);
 
-    MandelbrotDisplay(cv::Rect_<float> selection, int size, MandelbrotColor::Color color);
+    MandelbrotDisplay(cv::Rect_<float> region, int displaySize, MandelbrotColor::Color color);
 
     cv::Mat getMat();
     MandelbrotSet getMandelbrotSet() { return *_mandelbrotSet; };
+    cv::Rect_<float> getRegion();
+    void setRegion(cv::Rect_<float> region);
 
-    void updateRect(cv::Rect_<float> selection);
+    void updateRect(cv::Rect_<float> region);
     bool isReadyToDisplay() { return _readyToDisplay; };
     void simulate();
     bool isUpdated();
-
+    
 private:
+    int _displaySize;
+    float _scale;
+    bool _readyToDisplay;
     cv::Mat _mat;
     cv::Vec3b _color;
-    std::unique_ptr<MandelbrotSet> _mandelbrotSet;
-    int _size;
-    float _scale;
-    float _xmin;
-    float _xmax;
-    float _ymin;
-    float _ymax;
-
-    bool _readyToDisplay;
-
-    enum Status { needToUpdate, readyToDisplay, waitForUpdate, done };
-
-    Status _status;
+    cv::Rect_<float> _region;
     std::mutex _mutex;
-
     std::vector<std::thread> threads;
+    std::unique_ptr<MandelbrotSet> _mandelbrotSet;
+    
+    enum Status { needToUpdate, readyToDisplay, waitForUpdate, done };
+    Status _status;
 
+    std::vector<std::complex<float>> convertRectToVector(cv::Rect_<float> region);
     MandelbrotDisplay::Status getStatus();
     void setStatus(MandelbrotDisplay::Status status);
-
-    void generateMat();
     void cycleThroughPhases();
-
     void generateMandelbrotSet();
-
+    void generateMat();
 };
