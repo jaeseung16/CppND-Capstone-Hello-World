@@ -14,6 +14,8 @@ public:
     static const cv::Rect_<float> initialZoomedRect;
     static const cv::Rect initialRegionToZoomed;
     static const int defaultDisplaySize;
+    static const std::string defaultDiplayWindowName;
+    static const std::string zoomedDiplayWindowName;
 
     static void onMouse(int event, int x, int y, int flags, void *that);
 
