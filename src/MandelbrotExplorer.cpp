@@ -14,19 +14,14 @@ MandelbrotExplorer::MandelbrotExplorer() {
 
     _staticDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(defaultRect, defaultDisplaySize, MandelbrotColor::Color::Red));
     
-    float scale = initialZoomedRect.width / defaultRect.width;
-    float range = (float)defaultDisplaySize * scale ;
-    float regionX = (int) ((initialZoomedRect.x - defaultRect.x) * (float)defaultDisplaySize / defaultRect.width);
-    float regionY = (int) ((initialZoomedRect.y - defaultRect.y) * (float)defaultDisplaySize / defaultRect.width);
-    
-    _regionToZoomed = cv::Rect((int)regionX, (int)regionY, (int)range, (int)range);
     _defaultDisplayRect = cv::Rect(0, 0, defaultDisplaySize, defaultDisplaySize);
 
-    _zoomedDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(convertRangeToZoomedToComplex(initialRegionToZoomed), defaultDisplaySize, MandelbrotColor::Color::Green));
+    _regionToZoomed = initialRegionToZoomed;
+    _zoomedDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(convertRangeToZoomedToComplex(_regionToZoomed), defaultDisplaySize, MandelbrotColor::Color::Green));
     _zoomedDisplay->simulate();
 
-    std::cout << "initialZoomedRect = " << initialZoomedRect << std::endl;
     std::cout << "_regionToZoomed = " << _regionToZoomed << std::endl;
+    std::cout << "initialZoomedRect = " << initialZoomedRect << std::endl;
 
     showMandelbrotSet();
 }
