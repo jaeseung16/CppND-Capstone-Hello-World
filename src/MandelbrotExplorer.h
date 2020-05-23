@@ -37,7 +37,7 @@ private:
 
     std::mutex _mutex;
 
-    cv::Rect_<float> convertRangeToZoomedToComplex(cv::Rect regionToZoomed);
+    cv::Rect_<float> convertZoomedRegionToRect(cv::Rect regionToZoomed);
     void moveRegion(cv::Rect &region, const cv::Point origin, cv::Point &&point);
     void shrinkRegion(cv::Rect &region, int &&delta);
     void enlargeRegion(cv::Rect &region, int &&delta);

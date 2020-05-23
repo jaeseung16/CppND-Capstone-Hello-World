@@ -18,16 +18,16 @@ MandelbrotExplorer::MandelbrotExplorer() {
     _regionToZoomed = initialRegionToZoomed;
 
     _staticDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(defaultRect, defaultDisplaySize, MandelbrotColor::Color::Red));
-    _zoomedDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(convertRangeToZoomedToComplex(_regionToZoomed), defaultDisplaySize, MandelbrotColor::Color::Green));
+    _zoomedDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(convertZoomedRegionToRect(_regionToZoomed), defaultDisplaySize, MandelbrotColor::Color::Green));
     _zoomedDisplay->simulate();
 }
 
 
-cv::Rect_<float> MandelbrotExplorer::convertRangeToZoomedToComplex(cv::Rect regionToZoomed) {
-    float xmin_zoomed = defaultRect.x + defaultRect.width * (float)regionToZoomed.x / (defaultDisplaySize+1);
-    float ymin_zoomed = defaultRect.y + defaultRect.height * (float)regionToZoomed.y / (defaultDisplaySize+1);
-    float range_zoomed = defaultRect.width * (float)(regionToZoomed.width - 1) / (defaultDisplaySize+1);
-    return cv::Rect_<float>(xmin_zoomed, ymin_zoomed, range_zoomed, range_zoomed);
+cv::Rect_<float> MandelbrotExplorer::convertZoomedRegionToRect(cv::Rect regionToZoomed) {
+    float xmin = defaultRect.x + defaultRect.width * (float)regionToZoomed.x / (defaultDisplaySize+1);
+    float ymin = defaultRect.y + defaultRect.height * (float)regionToZoomed.y / (defaultDisplaySize+1);
+    float range = defaultRect.width * (float)(regionToZoomed.width - 1) / (defaultDisplaySize+1);
+    return cv::Rect_<float>(xmin, ymin, range, range);
 }
 
 void MandelbrotExplorer::showMandelbrotSet() {
@@ -186,6 +186,6 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
     _origin = _originCandidate;
     _regionToZoomed = _regionToZoomedCandidate;
     _colorForRegionToZoomed = MandelbrotColor::convertToVec3b(_colorForRegionToZoomedCandidate);
-    _zoomedDisplay->updateRect(convertRangeToZoomedToComplex(_regionToZoomedCandidate));
+    _zoomedDisplay->updateRect(convertZoomedRegionToRect(_regionToZoomedCandidate));
 
 }
