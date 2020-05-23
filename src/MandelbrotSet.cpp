@@ -86,13 +86,13 @@ MandelbrotSet &MandelbrotSet::operator=(MandelbrotSet &&source) {
     return *this;
 }
 
-MandelbrotSet::MandelbrotSet(std::vector<std::complex<float>> &&zs, int nIteration) {
+MandelbrotSet::MandelbrotSet(std::vector<std::complex<float>> &&zs, int nIteration, int size) {
     _zs = zs;
     _nIteration = nIteration;
     _values = std::vector<int>(_zs.size(), 0);;
 
     auto start = std::chrono::high_resolution_clock::now();
-    parallel_for_(cv::Range(0, 800*800), [&](const cv::Range& range){
+    parallel_for_(cv::Range(0, size*size), [&](const cv::Range& range){
         for (int r = range.start; r < range.end; r++)
         {
             uchar value = (uchar) mandelbrotFormula(this->_zs[r], this->_nIteration);

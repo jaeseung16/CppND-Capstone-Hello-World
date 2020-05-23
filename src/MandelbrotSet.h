@@ -12,7 +12,7 @@ public:
     MandelbrotSet(MandelbrotSet &&source);
     MandelbrotSet &operator=(MandelbrotSet &&source);
 
-    MandelbrotSet(std::vector<std::complex<float>> &&zs, int nIteration);
+    MandelbrotSet(std::vector<std::complex<float>> &&zs, int nIteration, int size);
 
     std::vector<int> getValues() { return _values; }
 
