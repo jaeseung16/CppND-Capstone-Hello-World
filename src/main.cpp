@@ -1,12 +1,7 @@
-#include <iostream>
-
 #include "MandelbrotExplorer.h"
 
 int main() {
-    std::cout << "### Mandelbrot Explorer Initializing ###" << "\n";
-    std::string windowName = "Mandelbrot";
-    
-    MandelbrotExplorer();
-    
+    MandelbrotExplorer mandelbrotExplorer = MandelbrotExplorer();
+    mandelbrotExplorer.showMandelbrotSet();
     return 0;
 }
