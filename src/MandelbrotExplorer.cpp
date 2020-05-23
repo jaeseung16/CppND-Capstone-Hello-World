@@ -2,6 +2,8 @@
 #include <chrono>
 #include <thread>
 
+#include <opencv2/imgproc.hpp>
+
 #include "MandelbrotExplorer.h"
 
 const cv::Rect_<float> MandelbrotExplorer::defaultRect = cv::Rect_<float>(-2.0, -1.5, 3.0, 3.0);
@@ -44,10 +46,40 @@ cv::Rect MandelbrotExplorer::getRegionToZoomed() {
     return _regionToZoomed;
 }
 
+void MandelbrotExplorer::setColorForRegionToZoomed(cv::Vec3b color) {
+    std::lock_guard<std::mutex> lock(_mutex);
+    _colorForRegionToZoomed = color;
+}
+
+cv::Vec3b MandelbrotExplorer::getColorForRegionToZoomed() {
+    std::lock_guard<std::mutex> lock(_mutex);
+    return _colorForRegionToZoomed;
+}
+
+std::string convertFloatToString(float number) {
+    return std::to_string(number).substr(0,4);
+}
+
+void MandelbrotExplorer::putScale(cv::Mat &image) {
+    std::string scale = "X" + convertFloatToString((float)defaultDisplaySize / (float)_regionToZoomed.width);
+    cv::putText(image, scale, _scaleTextPosition, _fontFace, _fontScaleForScaleText, _fontColorForScaleText, _thicknessForScaleText);
+
+    cv::Rect_<float> region = _zoomedDisplay->getRegion();
+    std::string topleftText = "(" + convertFloatToString(region.x) + ", " + convertFloatToString(region.y) + ")";
+    cv::putText(image, topleftText, _topleftTextPosition, _fontFace, _fontScaleForLimitText, _fontColorForLimitText, _thicknessForLimitText);
+
+    std::string bottomrightText = "(" + convertFloatToString(region.x + region.width) + ", " + convertFloatToString(region.y + region.height) + ")";
+    cv::putText(image, bottomrightText, _bottomrightTextPosition, _fontFace, _fontScaleForLimitText, _fontColorForLimitText, _thicknessForLimitText);
+}
+
 void MandelbrotExplorer::showMandelbrotSet() {
     std::cout << "### Present Mandelbrot Set ###" << std::endl;
 
     cv::namedWindow(defaultDiplayWindowName);
+    cv::moveWindow(defaultDiplayWindowName, 0, 0);
+    cv::namedWindow(zoomedDiplayWindowName);
+    cv::moveWindow(zoomedDiplayWindowName, defaultDisplaySize, 0);
+    
     cv::setMouseCallback(defaultDiplayWindowName, MandelbrotExplorer::onMouse, this);
     cv::Mat zoomedImage = _zoomedDisplay->getMat();
     while(true) {
@@ -55,13 +87,14 @@ void MandelbrotExplorer::showMandelbrotSet() {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         cv::Mat image = _staticDisplay->getMat();
-        cv::rectangle(image, getRegionToZoomed(), _colorForRegionToZoomed);
+        cv::rectangle(image, getRegionToZoomed(), getColorForRegionToZoomed());
         cv::imshow(defaultDiplayWindowName, image);
 
         if (_zoomedDisplay->isUpdated()) {
             std::cout << "Updating _zoomedDisplay " << (_zoomedDisplay->isUpdated()) << std::endl;
             zoomedImage = _zoomedDisplay->getMat();
         }
+        putScale(zoomedImage);
         cv::imshow(zoomedDiplayWindowName, zoomedImage);
 
         if((char)27 == cv::waitKey(30)) {
@@ -194,7 +227,7 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
 
     _origin = _originCandidate;
     setRegionToZoomed(_regionToZoomedCandidate);
-    _colorForRegionToZoomed = MandelbrotColor::convertToVec3b(_colorForRegionToZoomedCandidate);
+    setColorForRegionToZoomed(MandelbrotColor::convertToVec3b(_colorForRegionToZoomedCandidate));
     _zoomedDisplay->updateRect(convertZoomedRegionToRect(_regionToZoomedCandidate));
 
 }
