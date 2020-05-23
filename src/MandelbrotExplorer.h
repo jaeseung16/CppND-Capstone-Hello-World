@@ -11,8 +11,6 @@ class MandelbrotExplorer
 {
 public:
     static const cv::Rect_<float> defaultRect;
-    static const cv::Rect_<float> initialZoomedRect;
-    static const cv::Rect initialRegionToZoomed;
     static const int defaultDisplaySize;
     static const std::string defaultDiplayWindowName;
     static const std::string zoomedDiplayWindowName;

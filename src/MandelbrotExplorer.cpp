@@ -5,9 +5,7 @@
 #include "MandelbrotExplorer.h"
 
 const cv::Rect_<float> MandelbrotExplorer::defaultRect = cv::Rect_<float>(-2.0, -1.5, 3.0, 3.0);
-const cv::Rect_<float> MandelbrotExplorer::initialZoomedRect = cv::Rect_<float>(-1.5, -0.2, 0.4, 0.4);
-const cv::Rect MandelbrotExplorer::initialRegionToZoomed = cv::Rect(133, 346, 106, 106);
-const int MandelbrotExplorer::defaultDisplaySize = 800;
+const int MandelbrotExplorer::defaultDisplaySize = 700;
 const std::string MandelbrotExplorer::defaultDiplayWindowName = "Mandelbrot";
 const std::string MandelbrotExplorer::zoomedDiplayWindowName = "Zoomed Mandelbrot";
 
@@ -15,6 +13,12 @@ MandelbrotExplorer::MandelbrotExplorer() {
     std::cout << "### Initialize MandelbrotExplorer ###" << std::endl;
 
     _defaultDisplayRect = cv::Rect(0, 0, defaultDisplaySize, defaultDisplaySize);
+    
+    // zoomed display initialized corresponding to cv::Rect_<float>(-1.5, -0.2, 0.4, 0.4)
+    int xMin = defaultDisplaySize / 6;
+    int yMin = defaultDisplaySize * 13 / 30;
+    int range = defaultDisplaySize * 2 / 15;
+    cv::Rect initialRegionToZoomed = cv::Rect(xMin, yMin, range, range);
     setRegionToZoomed(initialRegionToZoomed);
 
     _staticDisplay = std::unique_ptr<MandelbrotDisplay>(new MandelbrotDisplay(defaultRect, defaultDisplaySize, MandelbrotColor::Color::Red));
