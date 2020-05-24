@@ -11,6 +11,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include "MandelbrotDisplay.h"
+#include "MandelbrotQueue.cpp"
 
 const int MandelbrotDisplay::maxIterations = 50;
 
@@ -122,6 +123,7 @@ void MandelbrotDisplay::generateMandelbrotSet() {
 }
 
 void MandelbrotDisplay::updateMandelbrotSet() {
+    setRegion(_queue.receive());
     _mandelbrotSet -> recalculate(std::move(generateComplexPointsFromRegion(_region)));
     generateMat();
 }
@@ -147,12 +149,9 @@ void MandelbrotDisplay::generateMat()
 
 void MandelbrotDisplay::updateRect(cv::Rect_<float> region)
 {
-    if (MandelbrotDisplay::Status::waitForUpdate == getStatus())
-    {
-        setRegion(region);
-        setStatus(Status::needToUpdate);
-        return;
-    }
+    _queue.send(std::move(region));
+    setStatus(Status::needToUpdate);
+    return;
 }
 
 void MandelbrotDisplay::simulate()

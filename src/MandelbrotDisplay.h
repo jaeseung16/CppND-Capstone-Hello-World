@@ -9,6 +9,7 @@
 
 #include "MandelbrotSet.h"
 #include "MandelbrotColor.h"
+#include "MandelbrotQueue.h"
 
 class MandelbrotDisplay {
 public:
@@ -41,6 +42,7 @@ private:
     std::mutex _mutex;
     std::vector<std::thread> threads;
     std::unique_ptr<MandelbrotSet> _mandelbrotSet;
+    MandelbrotQueue<cv::Rect_<float>> _queue;
     
     enum Status { needToUpdate, readyToDisplay, waitForUpdate, done };
     Status _status;
