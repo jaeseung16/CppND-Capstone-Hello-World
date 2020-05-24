@@ -11,6 +11,11 @@ class MandelbrotExplorer
 {
 public:
     MandelbrotExplorer();
+    ~MandelbrotExplorer();
+    MandelbrotExplorer(const MandelbrotExplorer &source);
+    MandelbrotExplorer &operator=(const MandelbrotExplorer &source);
+    MandelbrotExplorer(MandelbrotExplorer &&source);
+    MandelbrotExplorer &operator=(MandelbrotExplorer &&source);
 
     void showMandelbrotSet();
 

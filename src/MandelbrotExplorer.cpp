@@ -29,6 +29,69 @@ MandelbrotExplorer::MandelbrotExplorer()
     _zoomedDisplay->simulate();
 }
 
+MandelbrotExplorer::~MandelbrotExplorer()
+{
+
+}
+
+MandelbrotExplorer::MandelbrotExplorer(const MandelbrotExplorer &source)
+{
+    std::cout << "MandelbrotExplorer Copy Constructor" << std::endl;
+    _regionToZoomed = source._regionToZoomed;
+    _origin = source._origin;
+    _colorForRegionToZoomed = source._colorForRegionToZoomed;
+    _defaultDisplayRect = source._defaultDisplayRect;
+
+    _staticDisplay = std::make_unique<MandelbrotDisplay>(*(source._staticDisplay));
+    _zoomedDisplay = std::make_unique<MandelbrotDisplay>(*(source._zoomedDisplay));
+}
+
+MandelbrotExplorer &MandelbrotExplorer::operator=(const MandelbrotExplorer &source)
+{
+    std::cout << "MandelbrotExplorer Copy Assignment Operator" << std::endl;
+    if (this == &source)
+        return *this;
+        
+    _regionToZoomed = source._regionToZoomed;
+    _origin = source._origin;
+    _colorForRegionToZoomed = source._colorForRegionToZoomed;
+    _defaultDisplayRect = source._defaultDisplayRect;
+
+    _staticDisplay = std::make_unique<MandelbrotDisplay>(*(source._staticDisplay));
+    _zoomedDisplay = std::make_unique<MandelbrotDisplay>(*(source._zoomedDisplay));
+
+    return *this;
+}
+
+MandelbrotExplorer::MandelbrotExplorer(MandelbrotExplorer &&source)
+{
+    std::cout << "MandelbrotExplorer Move Constructor" << std::endl;
+    _regionToZoomed = source._regionToZoomed;
+    _origin = source._origin;
+    _colorForRegionToZoomed = source._colorForRegionToZoomed;
+    _defaultDisplayRect = source._defaultDisplayRect;
+
+    _staticDisplay = std::move(_staticDisplay);
+    _zoomedDisplay = std::move(_zoomedDisplay);
+}
+
+MandelbrotExplorer &MandelbrotExplorer::operator=(MandelbrotExplorer &&source){
+    std::cout << "MandelbrotExplorer Move Assignment Operator" << std::endl;
+    if (this == &source)
+        return *this;
+        
+    _regionToZoomed = source._regionToZoomed;
+    _origin = source._origin;
+    _colorForRegionToZoomed = source._colorForRegionToZoomed;
+    _defaultDisplayRect = source._defaultDisplayRect;
+
+    _staticDisplay = std::move(_staticDisplay);
+    _zoomedDisplay = std::move(_zoomedDisplay);
+
+    return *this;
+}
+
+
 cv::Rect_<float> MandelbrotExplorer::convertZoomedRegionToRect(cv::Rect regionToZoomed)
 {
     float xmin = defaultRect.x + defaultRect.width * (float)regionToZoomed.x / (defaultDisplaySize+1);
