@@ -11,6 +11,7 @@
   5. Run make: `make`
 
 ## How to run the project
+
 - Change the directory : `cd CppND-Capstone-MandelbrotExplorer/build`
 - Run MandelbrotExplorer: `./MandelbrotExplorer`
   1. Two windows named **Mandelbrot** and **Zoomed Mandelbrot** will appear
@@ -26,7 +27,8 @@
      - Release the left button of the mouse while holding the CTRL key (or release the right button). The box color will become white.
   4. To end, press the `ESC` key
 
-## Requirements 
+## Requirements
+
 - gcc/g++ >= 5.4
   - Linux: gcc / g++ is installed by default on most Linux distros
   - Mac: [Install Xcode command line tools](https://developer.apple.com/xcode/resources/)
@@ -47,29 +49,26 @@
 
 Let's explore the [Mandelbrot set](https://en.wikipedia.org/wiki/Mandelbrot_set)!
 
-
-
 ## Project Rubric Points
 
 #### README (All Rubric Points REQUIRED)
+
 - [x] A README with instructions is included with the project
 - [x] The README indicates which project is chosen.
 - [x] The README includes information about each rubric point addressed.
 
 ### Compiling and Testing (All Rubric Points REQUIRED)
+
 - [x] The submission must compile and run.
 
 ### Loops, Functions, I/O
+
 - [x] The project demonstrates an understanding of C++ functions and control structures.
-
-* A variety of control structures are used in the project.
-
-* The project code is clearly organized into functions.
-
+  - `MandelbrotExplorer.cpp`, line numbers 156-176, 187-239, 257-329
+  - `MandelbrotDisplay.cpp`. line numbers 108-114, 136-141, 150-155, 166-180, 216-219
+  - `MandelbrotSet.cpp`, line numbers 127-131, 142-147
+  - `MandelbrotColor.cpp', line number 6-25, 33-48
 - [ ] The project reads data from a file and process the data, or the program writes data to a file.
-
-* The project reads data from an external file or writes data to a file as part of the necessary operation of the program.
-
 - [x] The project accepts user input and processes the input.
   - MandelbrotExplorer.cpp, line 247
 
@@ -81,78 +80,55 @@ Let's explore the [Mandelbrot set](https://en.wikipedia.org/wiki/Mandelbrot_set)
     - `MandelbrotDisplay` provides the image of the Mandelbrot set within a certain range of complex numbers. `MandelbrotDisplay` ask `MandelbrotSet` for the data of the Mandelbrot set to generate the image.
     - `MandelbrotSet` calculates and holds tha data of the Mandelbrot set.
   - As a support class, `MandelbrotColor` provides conversion between enum and cv::Vec3b.
-
 - [x] Classes use appropriate access specifiers for class members.
-  - Please see `MandelbrotExplorer.h`, `MandelbrotDisplay.h`, `MandelbrotSet.h`, and `MandelbrotColor.h`.
-
+  - `MandelbrotExplorer.h`, line numbers 12, 22
+  - `MandelbrotDisplay.h`. line numbers 14, 35
+  - `MandelbrotSet.h`, line numbers 6, 19
+  - `MandelbrotColor.h', line number 5
 - [ ] Class constructors utilize member initialization lists.
-
-* All class members that are set to argument values are initialized through member initialization lists.
-
-- [ ] Classes abstract implementation details from their interfaces.
-
-* All class member functions document their effects, either through function names, comments, or formal documentation. Member functions do not change program state in undocumented ways.
-
+- [x] Classes abstract implementation details from their interfaces.
+   - `MandelbrotExplorer.cpp`, line numbers 187, 211, 220
+   - `MandelbrotDisplay.cpp`. line number 148
+   - `MandelbrotSet.cpp`. line numbers 111, 119
 - [x] Classes encapsulate behavior.
-
-* Appropriate data and functions are grouped into classes. Member data that is subject to an invariant is hidden from the user. State is accessed via member functions.
-
+  - Class `MandelbrotDisplay` provides the image of the Mandelbrot set within a certain range of complex numbers.
+  - Class `MandelbrotSet` calculates and holds tha data of the Mandelbrot set.
 - [ ] Classes follow an appropriate inheritance hierarchy.
-
-* Inheritance hierarchies are logical. Composition is used instead of inheritance when appropriate. Abstract classes are composed of pure virtual functions. Override functions are specified.
-
 - [x] Overloaded functions allow the same function to operate on different parameters.
-
-* One function is overloaded with different signatures for the same function name.
-
+  - `MandelbrotDisplay.h`. line number 24
+  - `MandelbrotSet.h`, line number 14
 - [ ] Derived class functions override virtual base class functions.
-
-* One member function in an inherited class overrides a virtual base class member function.
-
 - [ ] Templates generalize functions in the project.
-
-* One function is declared with a template that allows it to accept a generic parameter.
 
 ### Memory Management
 
 - [x] The project makes use of references in function declarations.
-
-* At least two variables are defined as references, or two functions use pass-by-reference in the project code.
-
+  - `MandelbrotExplorer.h`, line numbers 15-18, 61-63, 67
+  - `MandelbrotDisplay.h`. line numbers 19-22
+  - `MandelbrotSet.h`, line numbers 9-12, 14, 16, 21
 - [x] The project uses destructors appropriately.
-  - `MandelbrotDisplay.cpp`, line number 25
-
-* At least one class that uses unmanaged dynamically allocated memory, along with any class that otherwise needs to modify state upon the termination of an object, uses a destructor.
-
-- [ ] The project uses scope / Resource Acquisition Is Initialization (RAII) where appropriate.
-
-* The project follows the Resource Acquisition Is Initialization pattern where appropriate, by allocating objects at compile-time, initializing objects when they are declared, and utilizing scope to ensure their automatic destruction.
-
+  - `MandelbrotDisplay.cpp`, line numbers 19-27
+  - `MandelbrotSet.cpp`, line numbers 15-19
+- [x] The project uses scope / Resource Acquisition Is Initialization (RAII) where appropriate.
+  - `MandelbrotExplorer.cpp`, line numbers 14-30
 - [x] The project follows the Rule of 5.
-  - Classe `MandelbrotExplorer`, `MandelbrotDisplay`, and `MandelbrotSet` implement the Rule of 5.
-
+  - `MandelbrotExplorer.cpp`, line numbers 14-92
+  - `MandelbrotDisplay.cpp`. line numbers 17-91
+  - `MandelbrotSet.cpp`, line numbers 13-100
 - [x] The project uses move semantics to move data, instead of copying it, where possible.
-
-* For classes with move constructors, the project returns objects of that class by value, and relies on the move constructor, instead of copying the object.
-
+  - `MandelbrotExplorer.cpp`, line numbers 74, 75, 88, 89, 273, 277
+  - `MandelbrotDisplay.cpp`, line numbers 61-64, 79-82, 120, 125
+  - `MandelbrotSet.cpp`, line numbers 63, 68, 88 ,93, 107, 117
 - [x] The project uses smart pointers instead of raw pointers.
-
-* The project uses at least one smart pointer: `unique_ptr`, `shared_ptr`, or `weak_ptr`. The project does not use raw pointers.
+  - `MandelbrotExplorer.h`, line numbers 51, 52
+  - `MandelbrotDisplay.h`, line number 43
 
 ### Concurrency
 
-- [x] The project uses multithreading.
-
-* The project uses multiple threads in the execution.
-
+- [x] The project uses multithreading
+  - `MandelbrotDisplay.cpp`, line numbers 161
 - [ ] A promise and future is used in the project.
-
-* A promise and future is used to pass data from a worker thread to a parent thread in the project code.
-
 - [x] A mutex or lock is used in the project.
-
-* A mutex or lock (e.g. `std::lock_guard` or `std::unique_lock`) is used to protect data that is shared across multiple threads in the project code.
-
+  - `MandelbrotExplorer.cpp`, line numbers 105, 111, 117, 123
+  - `MandelbrotDisplay.cpp`, linu numbers 185, 191, 197 ,203
 - [ ] A condition variable is used in the project.
-
-* A `std::condition_variable` is used in the project code to synchronize thread execution.
