@@ -12,6 +12,8 @@
 
 #include "MandelbrotDisplay.h"
 
+const int MandelbrotDisplay::maxIterations = 50;
+
 MandelbrotDisplay::MandelbrotDisplay() {}
 
 MandelbrotDisplay::~MandelbrotDisplay()
@@ -124,7 +126,7 @@ std::vector<std::complex<float>> MandelbrotDisplay::convertRectToVector(cv::Rect
 void MandelbrotDisplay::generateMandelbrotSet() {
     auto start = std::chrono::high_resolution_clock::now();
 
-    _mandelbrotSet = std::make_unique<MandelbrotSet>(std::move(convertRectToVector(_region)), 50, _displaySize);
+    _mandelbrotSet = std::make_unique<MandelbrotSet>(std::move(convertRectToVector(_region)), maxIterations);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "MandelbrotDisplay::generateMandelbrotSet() took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
@@ -153,6 +155,8 @@ void MandelbrotDisplay::generateMat()
 
 void MandelbrotDisplay::updateRect(cv::Rect_<float> region)
 {
+    std::cout << "Input region = " << region << std::endl;
+    std::cout << "_region = " << getRegion() << std::endl;
     if (MandelbrotDisplay::Status::waitForUpdate == getStatus())
     {
         _scale = region.width / (float)(_displaySize+1);

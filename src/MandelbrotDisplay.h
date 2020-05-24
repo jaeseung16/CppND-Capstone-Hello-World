@@ -12,6 +12,8 @@
 
 class MandelbrotDisplay {
 public:
+    static const int maxIterations;
+
     MandelbrotDisplay();
     ~MandelbrotDisplay();
     MandelbrotDisplay(const MandelbrotDisplay &source);
