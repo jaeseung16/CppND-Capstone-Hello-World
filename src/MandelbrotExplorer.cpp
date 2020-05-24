@@ -258,14 +258,14 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
     {
         case cv::EVENT_MOUSEMOVE:
             {
-                if (_regionToZoomedSelected == true && isLeftButtonDown)
+                if (_regionToZoomedCanMove == true && isLeftButtonDown)
                 {
                     moveRegion(_regionToZoomedCandidate, _originCandidate, cv::Point(x,y));
                     _originCandidate = cv::Point(x,y);
                     _colorForRegionToZoomedCandidate = MandelbrotColor::Color::Cyan;
                 }
 
-                if (_regionToZoomedSelected == false && (isRightButtonDown || isCtrlKeyDown))
+                if (_regionToZoomedCanResize == true && _regionToZoomedCanMove == false && (isRightButtonDown || isCtrlKeyDown))
                 {
                     int delta = determineDelta(_originCandidate, cv::Point(x,y));
                     if (delta > 0)
@@ -283,43 +283,47 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
             break;
         case cv::EVENT_LBUTTONDOWN:
             {
-                if (!isCtrlKeyDown && _regionToZoomedCandidate.contains(cv::Point(x,y)) && _regionToZoomedSelected == false)
+                if (!isCtrlKeyDown && _regionToZoomedCandidate.contains(cv::Point(x,y)) && _regionToZoomedCanMove == false)
                 {
                     _originCandidate = cv::Point(x,y);
                     _colorForRegionToZoomedCandidate = MandelbrotColor::Color::Cyan;
-                    _regionToZoomedSelected = true;
+                    _regionToZoomedCanMove = true;
                 } 
-                if (isCtrlKeyDown && _regionToZoomedCandidate.contains(cv::Point(x,y)) && _regionToZoomedSelected == false)
+                if (isCtrlKeyDown && _regionToZoomedCandidate.contains(cv::Point(x,y)) && _regionToZoomedCanResize == false && _regionToZoomedCanMove == false)
                 {
                     _originCandidate = cv::Point(x, y);
                     _colorForRegionToZoomedCandidate = MandelbrotColor::Color::Yellow;
+                    _regionToZoomedCanResize = true;
                 }
             }
             
             break;
         case cv::EVENT_LBUTTONUP:
             {
-                if (!isCtrlKeyDown && _regionToZoomedSelected == true) {
+                if (!isCtrlKeyDown && _regionToZoomedCanMove == true) {
                     moveRegion(_regionToZoomedCandidate, _originCandidate, cv::Point(x,y));
                     _colorForRegionToZoomedCandidate = MandelbrotColor::Color::White;
-                    _regionToZoomedSelected = false;
+                    _regionToZoomedCanMove = false;
                 }
-                if (isCtrlKeyDown && _regionToZoomedSelected == false) {    
+                if (isCtrlKeyDown && _regionToZoomedCanResize == true && _regionToZoomedCanMove == false) {    
                     _colorForRegionToZoomedCandidate = MandelbrotColor::Color::White;
+                    _regionToZoomedCanMove = false;
                 }
             }
             break;
         case cv::EVENT_RBUTTONDOWN:
-            if (_regionToZoomedCandidate.contains(cv::Point(x,y)) && _regionToZoomedSelected == false)
+            if (_regionToZoomedCandidate.contains(cv::Point(x,y)) && _regionToZoomedCanResize == false && _regionToZoomedCanMove == false)
             {
                 _originCandidate = cv::Point(x, y);
                 _colorForRegionToZoomedCandidate = MandelbrotColor::Color::Yellow;
+                _regionToZoomedCanResize = true;
             }
             break;
         case cv::EVENT_RBUTTONUP:
-            if (_regionToZoomedSelected == false)
+            if (_regionToZoomedCanResize == true && _regionToZoomedCanMove == false)
             {    
                 _colorForRegionToZoomedCandidate = MandelbrotColor::Color::White;
+                _regionToZoomedCanResize = false;
             }
             break;
     }

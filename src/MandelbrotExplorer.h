@@ -38,7 +38,8 @@ private:
     const int _fontFace = cv::FONT_HERSHEY_SIMPLEX;
     const cv::Vec3b _fontColorForLimitText = MandelbrotColor::convertToVec3b(MandelbrotColor::Color::White);
 
-    bool _regionToZoomedSelected = false;
+    bool _regionToZoomedCanMove = false;
+    bool _regionToZoomedCanResize = false;
     bool _regionToZoomedUpdated = false;
 
     cv::Rect _regionToZoomed;
