@@ -35,6 +35,7 @@ MandelbrotDisplay::MandelbrotDisplay(const MandelbrotDisplay &source)
     _mandelbrotSet = std::make_unique<MandelbrotSet>(*(source._mandelbrotSet));
     _displaySize = source._displaySize;
     _scale = source._scale;
+    _status = source._status;
 }
 
 MandelbrotDisplay &MandelbrotDisplay::operator=(const MandelbrotDisplay &source)
@@ -49,6 +50,7 @@ MandelbrotDisplay &MandelbrotDisplay::operator=(const MandelbrotDisplay &source)
     _mandelbrotSet = std::make_unique<MandelbrotSet>(*(source._mandelbrotSet));
     _displaySize = source._displaySize;
     _scale = source._scale;
+    _status = source._status;
     
     return *this;
 }
@@ -62,6 +64,7 @@ MandelbrotDisplay::MandelbrotDisplay(MandelbrotDisplay &&source)
     _mandelbrotSet = std::move(source._mandelbrotSet);
     _displaySize = source._displaySize;
     _scale = source._scale;
+    _status = source._status;
 
     source._displaySize = 0;
     source._scale = 0.0;
@@ -79,6 +82,7 @@ MandelbrotDisplay &MandelbrotDisplay::operator=(MandelbrotDisplay &&source)
     _mandelbrotSet = std::move(source._mandelbrotSet);
     _displaySize = source._displaySize;
     _scale = source._scale;
+    _status = source._status;
 
     source._displaySize = 0;
     source._scale = 0.0;
@@ -89,7 +93,6 @@ MandelbrotDisplay &MandelbrotDisplay::operator=(MandelbrotDisplay &&source)
 MandelbrotDisplay::MandelbrotDisplay(cv::Rect_<float> region, int displaySize, MandelbrotColor::Color color)
 {
     _displaySize = displaySize;
-    _scale = region.width / (float)(_displaySize+1);
     setRegion(region);
 
     _color = MandelbrotColor::convertToVec3b(color) / 255.0;
@@ -99,10 +102,8 @@ MandelbrotDisplay::MandelbrotDisplay(cv::Rect_<float> region, int displaySize, M
     setStatus(MandelbrotDisplay::Status::readyToDisplay);
 }
 
-std::vector<std::complex<float>> MandelbrotDisplay::convertRectToVector(cv::Rect_<float> region)
+std::vector<std::complex<float>> MandelbrotDisplay::generateComplexPointsFromRegion(cv::Rect_<float> region)
 {
-    _scale = _region.width / (float)(_displaySize+1);
-
     std::vector<std::complex<float>> zs;
     for (int x = 0; x < _displaySize; x++)
     {
@@ -116,13 +117,7 @@ std::vector<std::complex<float>> MandelbrotDisplay::convertRectToVector(cv::Rect
 }
 
 void MandelbrotDisplay::generateMandelbrotSet() {
-    auto start = std::chrono::high_resolution_clock::now();
-
-    _mandelbrotSet = std::make_unique<MandelbrotSet>(std::move(convertRectToVector(_region)), maxIterations);
-
-    auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "MandelbrotDisplay::generateMandelbrotSet() took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
-
+    _mandelbrotSet = std::make_unique<MandelbrotSet>(std::move(generateComplexPointsFromRegion(_region)), maxIterations);
     generateMat();
 }
 
@@ -151,7 +146,6 @@ void MandelbrotDisplay::updateRect(cv::Rect_<float> region)
     std::cout << "_region = " << getRegion() << std::endl;
     if (MandelbrotDisplay::Status::waitForUpdate == getStatus())
     {
-        _scale = region.width / (float)(_displaySize+1);
         setRegion(region);
         setStatus(Status::needToUpdate);
         return;
@@ -205,6 +199,12 @@ void MandelbrotDisplay::setRegion(cv::Rect_<float> region)
 {
     std::lock_guard<std::mutex> lock(_mutex);
     _region = region;
+    _scale = calculateScale();
+}
+
+float MandelbrotDisplay::calculateScale()
+{
+    return _region.width / (float)(_displaySize + 1);
 }
 
 bool MandelbrotDisplay::isUpdated()

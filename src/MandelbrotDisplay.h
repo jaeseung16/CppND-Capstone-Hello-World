@@ -45,10 +45,11 @@ private:
     enum Status { needToUpdate, readyToDisplay, waitForUpdate, done };
     Status _status;
 
-    std::vector<std::complex<float>> convertRectToVector(cv::Rect_<float> region);
+    std::vector<std::complex<float>> generateComplexPointsFromRegion(cv::Rect_<float> region);
     MandelbrotDisplay::Status getStatus();
     void setStatus(MandelbrotDisplay::Status status);
     void cycleThroughPhases();
     void generateMandelbrotSet();
     void generateMat();
+    float calculateScale();
 };
