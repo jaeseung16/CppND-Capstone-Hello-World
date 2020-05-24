@@ -52,4 +52,5 @@ private:
     void generateMandelbrotSet();
     void generateMat();
     float calculateScale();
+    void updateMandelbrotSet();
 };

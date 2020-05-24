@@ -121,6 +121,11 @@ void MandelbrotDisplay::generateMandelbrotSet() {
     generateMat();
 }
 
+void MandelbrotDisplay::updateMandelbrotSet() {
+    _mandelbrotSet -> recalculate(std::move(generateComplexPointsFromRegion(_region)));
+    generateMat();
+}
+
 void MandelbrotDisplay::generateMat()
 {
     auto start = std::chrono::high_resolution_clock::now();
@@ -171,7 +176,7 @@ void MandelbrotDisplay::cycleThroughPhases()
         }
         else if (MandelbrotDisplay::Status::needToUpdate == status)
         {
-            generateMandelbrotSet();
+            updateMandelbrotSet();
             setStatus(MandelbrotDisplay::Status::readyToDisplay);
         }
     }
