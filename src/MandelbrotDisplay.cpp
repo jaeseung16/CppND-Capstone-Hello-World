@@ -35,7 +35,6 @@ MandelbrotDisplay::MandelbrotDisplay(const MandelbrotDisplay &source)
     _mandelbrotSet = std::make_unique<MandelbrotSet>(*(source._mandelbrotSet));
     _displaySize = source._displaySize;
     _scale = source._scale;
-    _readyToDisplay = source._readyToDisplay;
 }
 
 MandelbrotDisplay &MandelbrotDisplay::operator=(const MandelbrotDisplay &source)
@@ -50,7 +49,6 @@ MandelbrotDisplay &MandelbrotDisplay::operator=(const MandelbrotDisplay &source)
     _mandelbrotSet = std::make_unique<MandelbrotSet>(*(source._mandelbrotSet));
     _displaySize = source._displaySize;
     _scale = source._scale;
-    _readyToDisplay = source._readyToDisplay;
     
     return *this;
 }
@@ -64,11 +62,9 @@ MandelbrotDisplay::MandelbrotDisplay(MandelbrotDisplay &&source)
     _mandelbrotSet = std::move(source._mandelbrotSet);
     _displaySize = source._displaySize;
     _scale = source._scale;
-    _readyToDisplay = source._readyToDisplay;
 
     source._displaySize = 0;
     source._scale = 0.0;
-    source._readyToDisplay = false;
 }
 
 MandelbrotDisplay &MandelbrotDisplay::operator=(MandelbrotDisplay &&source)
@@ -83,19 +79,15 @@ MandelbrotDisplay &MandelbrotDisplay::operator=(MandelbrotDisplay &&source)
     _mandelbrotSet = std::move(source._mandelbrotSet);
     _displaySize = source._displaySize;
     _scale = source._scale;
-    _readyToDisplay = source._readyToDisplay;
 
     source._displaySize = 0;
     source._scale = 0.0;
-    source._readyToDisplay = false;
 
     return *this;
 }
 
 MandelbrotDisplay::MandelbrotDisplay(cv::Rect_<float> region, int displaySize, MandelbrotColor::Color color)
 {
-    _readyToDisplay = false;
-
     _displaySize = displaySize;
     _scale = region.width / (float)(_displaySize+1);
     setRegion(region);

@@ -29,14 +29,12 @@ public:
     void setRegion(cv::Rect_<float> region);
 
     void updateRect(cv::Rect_<float> region);
-    bool isReadyToDisplay() { return _readyToDisplay; };
     void simulate();
     bool isUpdated();
     
 private:
     int _displaySize;
     float _scale;
-    bool _readyToDisplay;
     cv::Mat _mat;
     cv::Vec3b _color;
     cv::Rect_<float> _region;
