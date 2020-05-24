@@ -147,8 +147,6 @@ void MandelbrotDisplay::generateMat()
 
 void MandelbrotDisplay::updateRect(cv::Rect_<float> region)
 {
-    std::cout << "Input region = " << region << std::endl;
-    std::cout << "_region = " << getRegion() << std::endl;
     if (MandelbrotDisplay::Status::waitForUpdate == getStatus())
     {
         setRegion(region);
