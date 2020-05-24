@@ -64,11 +64,11 @@ The project is based on one of the suggestions in Capstone Option 1: To explore 
 - [x] The README indicates which project is chosen.
 - [x] The README includes information about each rubric point addressed.
 
-### Compiling and Testing (All Rubric Points REQUIRED)
+#### Compiling and Testing (All Rubric Points REQUIRED)
 
 - [x] The submission must compile and run.
 
-### Loops, Functions, I/O
+#### Loops, Functions, I/O
 
 - [x] The project demonstrates an understanding of C++ functions and control structures.
   - `MandelbrotExplorer.cpp`, line numbers 156-176, 187-239, 257-328
@@ -79,7 +79,7 @@ The project is based on one of the suggestions in Capstone Option 1: To explore 
 - [x] The project accepts user input and processes the input.
   - MandelbrotExplorer.cpp, line 247
 
-### Object Oriented Programming
+#### Object Oriented Programming
 
 - [x] The project uses Object Oriented Programming techniques.
   - The main classes of the project are `MandelbrotExplorer`, `MandelbrotDisplay`, `MandelbrotSet`
@@ -107,7 +107,7 @@ The project is based on one of the suggestions in Capstone Option 1: To explore 
 - [ ] Derived class functions override virtual base class functions.
 - [ ] Templates generalize functions in the project.
 
-### Memory Management
+#### Memory Management
 
 - [x] The project makes use of references in function declarations.
   - `MandelbrotExplorer.h`, line numbers 15-18, 61-63, 67
@@ -130,7 +130,7 @@ The project is based on one of the suggestions in Capstone Option 1: To explore 
   - `MandelbrotExplorer.h`, line numbers 51, 52
   - `MandelbrotDisplay.h`, line number 43
 
-### Concurrency
+#### Concurrency
 
 - [x] The project uses multithreading
   - `MandelbrotDisplay.cpp`, line numbers 161
