@@ -2,7 +2,7 @@
 
 class MandelbrotColor
 {
-    public:
+public:
     enum Color { Red, Yellow, Green, Cyan, Blue, White };
 
     static cv::Vec3b convertToVec3b(const MandelbrotColor::Color color);
