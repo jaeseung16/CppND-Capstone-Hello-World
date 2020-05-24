@@ -105,8 +105,21 @@ MandelbrotSet::MandelbrotSet(std::vector<std::complex<float>> &&zs, int maxIter)
 {
     _zs = std::move(zs);
     _maxIter = maxIter;
-    _values = std::vector<int>(_zs.size(), 0);;
+    _values = std::vector<int>(_zs.size(), 0);
 
+    calculate();
+}
+
+void MandelbrotSet::recalculate(std::vector<std::complex<float>> &&zs)
+{
+    _zs.clear();
+    _zs = std::move(zs);
+
+    calculate();
+}
+
+void MandelbrotSet::calculate()
+{
     auto start = std::chrono::high_resolution_clock::now();
     parallel_for_(cv::Range(0, _zs.size()), [&](const cv::Range& range)
         {
@@ -118,7 +131,7 @@ MandelbrotSet::MandelbrotSet(std::vector<std::complex<float>> &&zs, int maxIter)
         }
     );
     auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "Generating Mandelbrot values took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
+    std::cout << "Generating Mandelbrot values took " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;  
 }
 
 int MandelbrotSet::mandelbrotFormula(const std::complex<float> &z0, const int &maxIter)

@@ -13,7 +13,10 @@ public:
 
     MandelbrotSet(std::vector<std::complex<float>> &&zs, int maxIter);
 
+    void calculate();
+    void recalculate(std::vector<std::complex<float>> &&zs);
     std::vector<int> getValues() { return _values; }
+    
 
 private:
     int mandelbrotFormula(const std::complex<float> &z0, const int &maxIter);
