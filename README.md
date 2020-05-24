@@ -24,6 +24,7 @@
      - Move the mouse pointer inside the window **Mandelbort**
      - While holding the CTRL key, click the left button of the mouse (or click and hold the right button of the mouse). The box color will change.
      - Move the mouse while holding the CTRL key and the left button (or holding the right button of the mouse).
+     - The box will shrink (or expand) if the mouse moves toward the top-left (or bottom-right) corner.
      - Release the left button of the mouse while holding the CTRL key (or release the right button). The box color will become white.
   4. To end, press the `ESC` key
 
@@ -47,9 +48,15 @@
 
 ## Project Description
 
-Let's explore the [Mandelbrot set](https://en.wikipedia.org/wiki/Mandelbrot_set)!
+The project is based on one of the suggestions in Capstone Option 1: To explore the [Mandelbrot set](https://en.wikipedia.org/wiki/Mandelbrot_set). One can move around within the interested part of the Mandelbrot set and investigate the details.
 
-## Project Rubric Points
+- Class structure
+  - `MandelbrotExplorer`: Main class showing two Mandelbrot images (provided by `MandelbrotDisplay`) and processing user inputs
+  - `MandelbrotDisplay` : Class providing Mandelbrot images given the range of complex numbers.
+  - `MandelbrotSet`: Class providing `MandelbrotDisplay` with Mandelbrot data
+  - `MandelbrotColor`: A support class for color conversion
+
+### Project Rubric Points
 
 #### README (All Rubric Points REQUIRED)
 
@@ -64,7 +71,7 @@ Let's explore the [Mandelbrot set](https://en.wikipedia.org/wiki/Mandelbrot_set)
 ### Loops, Functions, I/O
 
 - [x] The project demonstrates an understanding of C++ functions and control structures.
-  - `MandelbrotExplorer.cpp`, line numbers 156-176, 187-239, 257-329
+  - `MandelbrotExplorer.cpp`, line numbers 156-176, 187-239, 257-328
   - `MandelbrotDisplay.cpp`. line numbers 108-114, 136-141, 150-155, 166-180, 216-219
   - `MandelbrotSet.cpp`, line numbers 127-131, 142-147
   - `MandelbrotColor.cpp', line number 6-25, 33-48
