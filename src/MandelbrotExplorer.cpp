@@ -265,7 +265,7 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
                     _colorForRegionToZoomedCandidate = MandelbrotColor::Color::Cyan;
                 }
 
-                if (_regionToZoomedCanResize == true && _regionToZoomedCanMove == false && (isRightButtonDown || isCtrlKeyDown))
+                if (_regionToZoomedCanResize == true && _regionToZoomedCanMove == false && (isRightButtonDown || (isCtrlKeyDown && isLeftButtonDown)))
                 {
                     int delta = determineDelta(_originCandidate, cv::Point(x,y));
                     if (delta > 0)
