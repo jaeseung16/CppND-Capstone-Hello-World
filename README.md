@@ -30,13 +30,13 @@
 - gcc/g++ >= 5.4
   - Linux: gcc / g++ is installed by default on most Linux distros
   - Mac: [Install Xcode command line tools](https://developer.apple.com/xcode/resources/)
-  - Windows: recommend using [MinGW](http://www.mingw.org/)
+  - Windows: [MinGW](http://www.mingw.org/)
 - make >= 4.1 (Linux), 3.8 (Mac)
   - Linux: make is installed by default on most Linux distros
-  - Mac: [Install Xcode command line tools to get make](https://developer.apple.com/xcode/resources/)
-  - Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
+  - Mac: [Install Xcode command line tools](https://developer.apple.com/xcode/resources/)
+  - Windows: [Make for Windows](http://gnuwin32.sourceforge.net/packages/make.htm)
 - cmake >= 3.17
-  - All OSes: [click here for installation instructions](https://cmake.org/install/)
+  - All OSes: [Installing CMake](https://cmake.org/install/)
 - OpenCV >= 3.3 (Linux), 4.3 (Mac)
   - Linux: [Installation in Linux](https://docs.opencv.org/master/d7/d9f/tutorial_linux_install.html)
   - Mac: [Installation in MacOS](https://docs.opencv.org/master/d0/db2/tutorial_macos_install.html)
