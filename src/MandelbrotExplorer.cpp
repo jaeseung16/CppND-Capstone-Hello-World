@@ -7,7 +7,7 @@
 #include "MandelbrotExplorer.h"
 
 const cv::Rect_<float> MandelbrotExplorer::defaultRect = cv::Rect_<float>(-2.0, -1.5, 3.0, 3.0);
-const int MandelbrotExplorer::defaultDisplaySize = 700;
+const int MandelbrotExplorer::defaultDisplaySize = 600;
 const std::string MandelbrotExplorer::defaultDiplayWindowName = "Mandelbrot";
 const std::string MandelbrotExplorer::zoomedDiplayWindowName = "Zoomed Mandelbrot";
 
@@ -147,9 +147,9 @@ void MandelbrotExplorer::showMandelbrotSet()
     std::cout << "### Present Mandelbrot Set ###" << std::endl;
 
     cv::namedWindow(defaultDiplayWindowName);
-    cv::moveWindow(defaultDiplayWindowName, 0, 0);
+    cv::moveWindow(defaultDiplayWindowName, defaultDisplaySize/10, defaultDisplaySize/10);
     cv::namedWindow(zoomedDiplayWindowName);
-    cv::moveWindow(zoomedDiplayWindowName, defaultDisplaySize, 0);
+    cv::moveWindow(zoomedDiplayWindowName, defaultDisplaySize * 11/10, defaultDisplaySize/10);
     cv::setMouseCallback(defaultDiplayWindowName, MandelbrotExplorer::onMouse, this);
 
     cv::Mat zoomedImage = _zoomedDisplay->getMat();

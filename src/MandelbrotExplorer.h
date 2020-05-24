@@ -25,13 +25,13 @@ private:
     static const std::string defaultDiplayWindowName;
     static const std::string zoomedDiplayWindowName;
 
-    const cv::Point _scaleTextPosition = cv::Point(defaultDisplaySize * 90 / 100, defaultDisplaySize * 3 / 100);
+    const cv::Point _scaleTextPosition = cv::Point(defaultDisplaySize * 88 / 100, defaultDisplaySize * 3 / 100);
     const double _fontScaleForScaleText = 0.7;
     const int _thicknessForScaleText = 2;
     const cv::Vec3b _fontColorForScaleText = MandelbrotColor::convertToVec3b(MandelbrotColor::Color::Yellow);
 
     const cv::Point _topleftTextPosition = cv::Point(0, defaultDisplaySize * 3 / 100);
-    const cv::Point _bottomrightTextPosition = cv::Point(defaultDisplaySize * 85 / 100, defaultDisplaySize * 97 / 100);
+    const cv::Point _bottomrightTextPosition = cv::Point(defaultDisplaySize * 82 / 100, defaultDisplaySize * 97 / 100);
     const double _fontScaleForLimitText = 0.5;
     const int _thicknessForLimitText = 1;
 
