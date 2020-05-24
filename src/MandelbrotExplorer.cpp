@@ -296,7 +296,6 @@ void MandelbrotExplorer::mouseClick(int event, int x, int y, int flags)
                     _regionToZoomedCanResize = true;
                 }
             }
-            
             break;
         case cv::EVENT_LBUTTONUP:
             {
